@@ -204,7 +204,6 @@ def encoder_calibration() :
     # if motor not near zero rotate until at zero
     while position > 1 :
       BrickPi.MotorSpeed[port] = power
-
       result = BrickPiUpdateValues()
       if not result :
         position = (BrickPi.Encoder[port]%720)/2.0
@@ -212,7 +211,6 @@ def encoder_calibration() :
         if position < 1 and position > 259 :
           BrickPi.MotorSpeed[port] = 0
           BrickPiUpdateValues()
-#          initial_position[ = position
       time.sleep(.05)
 
     BrickPi.MotorSpeed[port] = 0
@@ -239,15 +237,13 @@ def motor_characterisation() :
 	lhm_angular_postions = []
 
 	for power_level in power_levels :
-
 		motorDrive(int(power_level))
-
 		result = BrickPiUpdateValues()
 		if not result :
 			measurement_times.append(time.time())
 			rhm_angular_positions.append((BrickPi.Encoder[port_rh_motor]%720)/2.0)
 			lhm_angular_positions.append((BrickPi.Encoder[port_lh_motor]%720)/2.0)
-  #  imu_readings
+#			imu_readings
 		time.sleep(sample_rate)
 
 	# write data to mat file
