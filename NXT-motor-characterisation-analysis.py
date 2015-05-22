@@ -35,10 +35,28 @@ plot(measurement_times, lhm_angular_positions)
 
 figure()
 plot(measurement_times, rhm_angular_displacements)
-plot(measurement_times, lhm_angular_positions)
+plot(measurement_times, lhm_angular_displacements)
 
 figure()
 plot(measurement_times, rhm_linear_displacements)
-plot(measurement_times, lhm_angular_positions)
+plot(measurement_times, lhm_linear_displacements)
 
 show()
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+fig, ax1 = plt.subplots()
+ax1.plot(measurement_times, power_levels, 'b-')
+ax1.set_xlabel('Measurement Time (s)')
+# Make the y-axis label and tick labels match the line color.
+ax1.set_ylabel('Power', color='b')
+for tl in ax1.get_yticklabels():
+	tl.set_color('b')
+
+ax2 = ax1.twinx()
+ax2.plot(measurement_times, rhm_angular_displacements, 'r.')
+ax2.set_ylabel('Angular Displacement', color='r')
+for tl in ax2.get_yticklabels():
+	tl.set_color('r')
+plt.show()

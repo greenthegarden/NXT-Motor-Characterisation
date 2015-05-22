@@ -46,7 +46,7 @@ def motorStop() :
 #
 #---------------------------------------------------------------------------------------
 
-def encoder_calibration() :
+def run_encoder_calibration() :
 	power = 70
 	ports = [port_rh_motor, port_lh_motor]
 
@@ -73,7 +73,7 @@ def encoder_calibration() :
 		BrickPiUpdateValues()
 
 
-def motor_characterisation() :
+def run_motor_characterisation() :
 
 	print("Load input power level signal from file {0}".format("signal.mat"))
 
@@ -82,32 +82,33 @@ def motor_characterisation() :
 	# import data from mat file
 	signal = io.loadmat("signal.mat", squeeze_me=True)
 
-	sample_rate  = signal['sample_rate']
-	times        = signal['times']
-	power_levels = signal['power']
+	sample_rate   = signal['sample_rate']
+	times         = signal['times']
+	power_samples = signal['power']
 
 	print("Starting NXT motor test")
 
 	import time
 
 	measurement_times    = []
+	power_levels         = []
 	rhm_angular_postions = []
 	lhm_angular_postions = []
 
-	for power_level in power_levels :
-		motorDrive(int(power_level))
+	for power_sample in power_samples :
+		motorDrive(int(power_sample))
 		result = BrickPiUpdateValues()
 		if not result :
 			measurement_times.append(time.time())
+			power_levels.append(power_sample)
 			# motor readings
 			rhm_angular_positions.append((BrickPi.Encoder[port_rh_motor]%720)/2.0)
 			lhm_angular_positions.append((BrickPi.Encoder[port_lh_motor]%720)/2.0)
 		time.sleep(sample_rate)
 
 	# write data to mat file
-	io.savemat("output.mat", {"times"                : times,
+	io.savemat("output.mat", {"measurement_times"    : measurement_times,
                             "power_levels"         : power_levels,
-                            "measurement_times"    : measurement_times,
                             "rhm_angular_positions": rhm_angular_positions,
                             "lhm_angular_positions": lhm_angular_positions,
                             })
@@ -119,8 +120,10 @@ def motor_characterisation() :
 #
 #---------------------------------------------------------------------------------------
 
-encoder_calibration = True
+encoder_calibration = False
 motor_characterisation = True
 
-encoder_calibration()
-motor_characterisation()
+if encoder_calibration :
+	run_encoder_calibration()
+if motor_characterisation :
+	run_motor_characterisation()
