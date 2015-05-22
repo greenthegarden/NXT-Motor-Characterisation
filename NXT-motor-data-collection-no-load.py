@@ -90,10 +90,10 @@ def run_motor_characterisation() :
 
 	import time
 
-	measurement_times    = []
-	power_levels         = []
-	rhm_angular_postions = []
-	lhm_angular_postions = []
+	measurement_times     = []
+	power_levels          = []
+	rhm_angular_positions = []
+	lhm_angular_positions = []
 
 	for power_sample in power_samples :
 		motorDrive(int(power_sample))
