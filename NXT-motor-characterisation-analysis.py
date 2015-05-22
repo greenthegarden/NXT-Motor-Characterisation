@@ -10,9 +10,8 @@ output = io.loadmat("output.mat", squeeze_me=True)
 
 import numpy as np
 
-times                 = np.array(output['times'])
-power_levels          = np.array(output['power_levels'])
 measurement_times     = np.array(output['measurement_times'])
+power_levels          = np.array(output['power_levels'])
 rhm_angular_positions = np.array(output['rhm_angular_positions'])
 lhm_angular_positions = np.array(output['lhm_angular_positions'])
 
@@ -26,22 +25,19 @@ lhm_angular_displacements = np.ediff1d(np.rad2deg(lhm_angular_positions), to_beg
 lhm_linear_displacements  = (lhm_angular_displacements / 360.0) * np.pi * wheel_diameter * 100
 #rhm_linear_displacements = (lhm_angular_displacements / 2.0) * wheel_diameter * 100
 
-figure()
-plot(times, power_levels)
-
-figure()
-plot(measurement_times, rhm_angular_positions)
-plot(measurement_times, lhm_angular_positions)
-
-figure()
-plot(measurement_times, rhm_angular_displacements)
-plot(measurement_times, lhm_angular_displacements)
-
-figure()
-plot(measurement_times, rhm_linear_displacements)
-plot(measurement_times, lhm_linear_displacements)
-
-show()
+# figure()
+# plot(measurement_times, rhm_angular_positions)
+# plot(measurement_times, lhm_angular_positions)
+#
+# figure()
+# plot(measurement_times, rhm_angular_displacements)
+# plot(measurement_times, lhm_angular_displacements)
+#
+# figure()
+# plot(measurement_times, rhm_linear_displacements)
+# plot(measurement_times, lhm_linear_displacements)
+#
+# show()
 
 import numpy as np
 import matplotlib.pyplot as plt
