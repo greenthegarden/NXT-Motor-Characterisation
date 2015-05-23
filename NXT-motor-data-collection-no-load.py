@@ -37,13 +37,13 @@ def motor_control(motor_port, power_level) :
 def motor_drive(motor_port, power_level) :
 	motor_control(motor_port, power_level)
 
-def motor_stop() :
+def motor_stop(motor_port) :
 	motor_control(motor_port, 0)
 
 def motor_position(motor_port) :
 	result = BrickPiUpdateValues()
 	if not result :
-		position = (BrickPi.Encoder[port]%720)/2.0
+		position = (BrickPi.Encoder[motor_port]%720)/2.0
 		print("position: {0}".format(position))
 		return position
 	else :
@@ -90,12 +90,14 @@ def run_motor_characterisation() :
 #	power_levels      = []
 	motor_results     = [[] for x in motor_ports]
 
-	for motor_result in motor_results  :
+	for motor_result, idx in motor_results :
+		motor_port = motor_ports[idx]
+		print("Testing motor on port {0}".format(motor_port))
 		measurement_times = []
 		power_levels      = []
 		angular_positions = []
 		for power_sample in power_samples :
-			motorDrive(int(power_sample))
+			motor_drive(motor_port,int(power_sample))
 			position = motor_position(motor_port)
 			if position is not -1 :
 				measurement_times.append(time.time())
