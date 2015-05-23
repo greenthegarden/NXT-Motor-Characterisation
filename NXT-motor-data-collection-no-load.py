@@ -40,11 +40,12 @@ def motor_drive(motor_port, power_level) :
 def motor_stop(motor_port) :
 	motor_control(motor_port, 0)
 
-def motor_position(motor_port) :
+def motor_position(motor_port, position_print=False) :
 	result = BrickPiUpdateValues()
 	if not result :
 		position = (BrickPi.Encoder[motor_port]%720)/2.0
-		print("position: {0}".format(position))
+		if position_print :
+			print("position: {0}".format(position))
 		return position
 	else :
 		return -1
@@ -63,10 +64,10 @@ def run_encoder_calibration() :
 		if position is not -1 :
 			while position > 1 :
 				motor_drive(motor_port, power_level)
-				position = motor_position(motor_port)
+				position = motor_position(motor_port,True)
 				if position is not -1 :
 					if position < 1 and position > 359 :
-						motor_drive(motor_port, power_level)
+						motor_drive(motor_port,power_level)
 				time.sleep(.05)
 			motor_stop(motor_port)
 
@@ -76,7 +77,7 @@ def run_motor_characterisation() :
 	# load signal
 	import scipy.io as io
 	# import data from mat file
-	signal = io.loadmat("signal.mat", squeeze_me=True)
+	signal = io.loadmat("signal.mat",squeeze_me=True)
 	# extract data from signal data
 	sample_rate   = signal['sample_rate']
 	times         = signal['times']
@@ -104,6 +105,7 @@ def run_motor_characterisation() :
 				power_levels.append(power_sample)
 				angular_positions.append(position)
 			time.sleep(sample_rate)
+		motor_stop(motor_port)
 		value.append(measurement_times)
 		value.append(power_levels)
 		value.append(angular_positions)
