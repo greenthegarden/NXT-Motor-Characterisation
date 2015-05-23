@@ -103,17 +103,17 @@ def run_motor_characterisation() :
 				angular_positions.append(position)
 			time.sleep(sample_rate)
 		motor_stop(motor_port)
-		value.append(motor_port)
+#		value.append(motor_port)
 		value.append(measurement_times)
 		value.append(power_levels)
 		value.append(angular_positions)
 
 	# write data to mat file
-	try :
-		io.savemat("output.mat", {"motor_results" : motor_results})
-		print("Recorded data saved to file {0}".format("output.mat"))
-	except :
-		print("Failed to write data to file!!")
+#	try :
+	io.savemat("output.mat", {"motor_results" : motor_results})
+	print("Recorded data saved to file {0}".format("output.mat"))
+#	except :
+#		print("Failed to write data to file!!")
 
 #---------------------------------------------------------------------------------------
 # Run experiments
