@@ -22,24 +22,32 @@ BrickPiSetup()
 # Configure sensors on BrickPi
 BrickPiSetupSensors()
 
-port_rh_motor = PORT_A
-port_lh_motor = PORT_D
+motor_ports = [PORT_A, PORT_D, PORT_C]
+#port_rh_motor = PORT_A
+#port_lh_motor = PORT_D
 
 # Define motors
-BrickPi.MotorEnable[port_rh_motor] = 1 #Enable the right drive motor
-BrickPi.MotorEnable[port_lh_motor] = 1 #Enable the left drive motor
+for motor_port in motor_ports :
+	BrickPi.MotorEnable[motor_port] = 1 #Enable the right drive motor
 
-def motorControl(powerLeft, powerRight) :
-	BrickPi.MotorSpeed[port_lh_motor] = powerLeft
-	BrickPi.MotorSpeed[port_rh_motor] = powerRight
+def motor_control(motor_port, power_level) :
+	BrickPi.MotorSpeed[motor_port] = power_level
 	BrickPiUpdateValues()
 
-def motorDrive(power_level) :
-	motorControl(power_level,power_level)
+def motor_drive(motor_port, power_level) :
+	motor_control(motor_port, power_level)
 
-def motorStop() :
-	motorControl(0,0)
+def motor_stop() :
+	motor_control(motor_port, 0)
 
+def motor_position(motor_port) :
+	result = BrickPiUpdateValues()
+	if not result :
+		position = (BrickPi.Encoder[port]%720)/2.0
+		print("position: {0}".format(position))
+		return position
+	else :
+		return -1
 
 #---------------------------------------------------------------------------------------
 # Definition of experiments
@@ -47,41 +55,29 @@ def motorStop() :
 #---------------------------------------------------------------------------------------
 
 def run_encoder_calibration() :
-	power = 70
-	ports = [port_rh_motor, port_lh_motor]
-
-	for port in ports :
-		print("Motor on port {0}".format(port))
+	power_level = 70
+	for motor_port in motor_ports :
+		print("Motor on port {0}".format(motor_port))
 		# get position
-		result = BrickPiUpdateValues()
-		if not result :
-			position = (BrickPi.Encoder[port]%720)/2.0
-			print("position: {0}".format(position))
-		# if motor not near zero rotate until at zero
-		while position > 1 :
-			BrickPi.MotorSpeed[port] = power
-			result = BrickPiUpdateValues()
-			if not result :
-				position = (BrickPi.Encoder[port]%720)/2.0
-				print("position: {0}".format(position))
-				if position < 1 and position > 359 :
-					BrickPi.MotorSpeed[port] = 0
-					BrickPiUpdateValues()
-			time.sleep(.05)
-
-		BrickPi.MotorSpeed[port] = 0
-		BrickPiUpdateValues()
-
+		position = motor_position(motor_port)		# if motor not near zero rotate until at zero
+		if position is not -1 :
+			while position > 1 :
+				motor_drive(motor_port, power_level)
+				position = motor_position(motor_port)
+				if position is not -1 :
+					if position < 1 and position > 359 :
+						motor_drive(motor_port, power_level)
+				time.sleep(.05)
+			motor_stop(motor_port)
 
 def run_motor_characterisation() :
 
 	print("Load input power level signal from file {0}".format("signal.mat"))
-
 	# load signal
 	import scipy.io as io
 	# import data from mat file
 	signal = io.loadmat("signal.mat", squeeze_me=True)
-
+	# extract data from signal data
 	sample_rate   = signal['sample_rate']
 	times         = signal['times']
 	power_samples = signal['power']
@@ -90,27 +86,28 @@ def run_motor_characterisation() :
 
 	import time
 
-	measurement_times     = []
-	power_levels          = []
-	rhm_angular_positions = []
-	lhm_angular_positions = []
+#	measurement_times = []
+#	power_levels      = []
+	motor_results     = [[] for x in motor_ports]
 
-	for power_sample in power_samples :
-		motorDrive(int(power_sample))
-		result = BrickPiUpdateValues()
-		if not result :
-			measurement_times.append(time.time())
-			power_levels.append(power_sample)
-			# motor readings
-			rhm_angular_positions.append((BrickPi.Encoder[port_rh_motor]%720)/2.0)
-			lhm_angular_positions.append((BrickPi.Encoder[port_lh_motor]%720)/2.0)
-		time.sleep(sample_rate)
+	for motor_result in motor_results  :
+		measurement_times = []
+		power_levels      = []
+		angular_positions = []
+		for power_sample in power_samples :
+			motorDrive(int(power_sample))
+			position = motor_position(motor_port)
+			if position is not -1 :
+				measurement_times.append(time.time())
+				power_levels.append(power_sample)
+				angular_positions.append(position)
+			time.sleep(sample_rate)
+		motor_result.append(measurement_times)
+		motor_result.append(power_levels)
+		motor_result.append(angular_positions)
 
 	# write data to mat file
-	io.savemat("output.mat", {"measurement_times"    : measurement_times,
-                            "power_levels"         : power_levels,
-                            "rhm_angular_positions": rhm_angular_positions,
-                            "lhm_angular_positions": lhm_angular_positions,
+	io.savemat("output.mat", {"motor_results" : motor_results,
                             })
 
 	print("Recorded data saved to file {0}".format("output.mat"))
