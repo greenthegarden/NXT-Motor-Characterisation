@@ -91,9 +91,11 @@ def run_motor_characterisation() :
 	for idx, value in enumerate(motor_results) :
 		motor_port = int(motor_ports[idx])
 		print("Testing motor on port {0}".format(motor_port))
+		ports             = []
 		measurement_times = []
 		power_levels      = []
 		angular_positions = []
+		ports.append(motor_port)
 		for power_sample in power_samples :
 			motor_drive(motor_port,int(power_sample))
 			position = motor_position(motor_port)
@@ -103,7 +105,7 @@ def run_motor_characterisation() :
 				angular_positions.append(position)
 			time.sleep(sample_rate)
 		motor_stop(motor_port)
-#		value.append(motor_port)
+		value.append(ports)
 		value.append(measurement_times)
 		value.append(power_levels)
 		value.append(angular_positions)
