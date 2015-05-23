@@ -112,7 +112,7 @@ def run_motor_characterisation() :
 	try :
 		io.savemat("output.mat", {"motor_results" : motor_results})
 		print("Recorded data saved to file {0}".format("output.mat"))
-	else :
+	except :
 		print("Failed to write data to file!!")
 
 #---------------------------------------------------------------------------------------
