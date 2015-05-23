@@ -90,7 +90,7 @@ def run_motor_characterisation() :
 #	power_levels      = []
 	motor_results     = [[] for x in motor_ports]
 
-	for motor_result, idx in motor_results :
+	for idx, value in enumerate(motor_results) :
 		motor_port = motor_ports[idx]
 		print("Testing motor on port {0}".format(motor_port))
 		measurement_times = []
@@ -104,9 +104,9 @@ def run_motor_characterisation() :
 				power_levels.append(power_sample)
 				angular_positions.append(position)
 			time.sleep(sample_rate)
-		motor_result.append(measurement_times)
-		motor_result.append(power_levels)
-		motor_result.append(angular_positions)
+		value.append(measurement_times)
+		value.append(power_levels)
+		value.append(angular_positions)
 
 	# write data to mat file
 	io.savemat("output.mat", {"motor_results" : motor_results,
