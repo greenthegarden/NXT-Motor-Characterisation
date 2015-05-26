@@ -295,7 +295,7 @@ def run_characterisation_drive(mode) :
 	except :
 		print("Failed to write data to file!!")
 
-run_forwards() :
+def run_forwards() :
 
 	times = arange(0, 10, sample_rate)
 
