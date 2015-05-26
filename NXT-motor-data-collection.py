@@ -299,7 +299,7 @@ def run_forwards(sample_rate=0.1) :
 
 	times = np.arange(0, 10, sample_rate)
 
-	for time in time :
+	for time in times :
 		motor_control(200,200)
 	motor_stop()
 
