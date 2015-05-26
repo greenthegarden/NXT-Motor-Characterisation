@@ -238,7 +238,7 @@ def get_heading() :
 	heading = 180 * math.atan2(readMAGy(),readMAGx())/M_PI
 	if heading < 0 :
 		heading += 360;
-	logger.info("Heading: %d" % (heading))
+#	logger.info("Heading: %d" % (heading))
 	return heading
 
 #---------------------------------------------------------------------------------------
