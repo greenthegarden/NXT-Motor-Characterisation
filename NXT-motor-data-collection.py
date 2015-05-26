@@ -232,7 +232,7 @@ def imu_reading() :
 	CFangleX=AA*(CFangleX+rate_gyr_x*LP) +(1 - AA) * AccXangle;
 	CFangleY=AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle;
 
-	logger.info("AccXangle: %d, Heading: %d, gyroZangle: %d" % (AccXangle, heading, gyroZangle))
+#	logger.info("AccXangle: %d, Heading: %d, gyroZangle: %d" % (AccXangle, heading, gyroZangle))
 
 def get_heading() :
 	heading = 180 * math.atan2(readMAGy(),readMAGx())/M_PI
@@ -301,6 +301,7 @@ def run_forwards() :
 
 	for time in time :
 		motor_control(200,200)
+	motor_stop()
 
 
 #---------------------------------------------------------------------------------------
