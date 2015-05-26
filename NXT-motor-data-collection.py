@@ -307,18 +307,19 @@ def run_forwards_characterisation(sample_rate=0.1) :
 
 def run_turn_left_characterisation(sample_rate=0.1) :
 
-	sample_times = np.arange(0, 10*1/sample_rate, sample_rate)
+	sample_times = np.arange(0, 10, sample_rate)
 
-	initial_heading = get_heading()
+	headings = np.array()
 
 	for sample_time in sample_times :
-		motor_control(200,200)
-		print("Heading: {0}".format(get_heading()))
+		headings.append(get_heading())
+		motor_control(150,200)
 		time.sleep(sample_rate)
 	motor_stop()
+	headings.append(get_heading())
 
-	print("Initial heading: {0}".format(initial_heading))
-	print("Final heading: {0}".format(get_heading()))
+	print("Initial heading: {0}".format(headings[0]))
+	print("Final heading: {0}".format(headings[-1]))
 
 
 #---------------------------------------------------------------------------------------
