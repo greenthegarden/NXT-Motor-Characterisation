@@ -295,13 +295,27 @@ def run_characterisation_drive(mode) :
 	except :
 		print("Failed to write data to file!!")
 
-def run_forwards(sample_rate=0.1) :
+def run_forwards_characterisation(sample_rate=0.1) :
 
-	times = np.arange(0, 10, sample_rate)
+	times = np.arange(0, 10*1/sample_rate, sample_rate)
 
 	for time in times :
 		motor_control(200,200)
 	motor_stop()
+
+def run_turn_left_characterisation(sample_rate=0.1) :
+
+	times = np.arange(0, 10*1/sample_rate, sample_rate)
+
+	initial_heading = get_heading()
+
+	for time in times :
+		motor_control(150,200)
+		print("Heading: {0}".format(get_heading())
+	motor_stop()
+
+	print("Initial heading: {0}".format(initial_heading)
+	print("Final heading: {0}".format(get_heading())
 
 
 #---------------------------------------------------------------------------------------
@@ -312,7 +326,8 @@ def run_forwards(sample_rate=0.1) :
 drive_forward_characterisation = False
 turn_left_characterisation = False
 turn_right_characterisation = False
-forwards = True
+forwards = False
+turn_left = True
 
 if drive_forward_characterisation :
 	run_characterisation_drive("forward")
@@ -322,5 +337,6 @@ if turn_right_characterisation :
 	run_characterisation_drive("right")
 
 if forwards :
-	run_forwards()
-
+	run_forwards_characterisation()
+if turn_left :
+	run_turn_left_characterisation()
