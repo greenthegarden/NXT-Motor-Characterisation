@@ -309,9 +309,9 @@ def run_forwards() :
 #
 #---------------------------------------------------------------------------------------
 
-drive_forward_characterisation = True
-turn_left_characterisation = True
-turn_right_characterisation = True
+drive_forward_characterisation = False
+turn_left_characterisation = False
+turn_right_characterisation = False
 forwards = True
 
 if drive_forward_characterisation :
