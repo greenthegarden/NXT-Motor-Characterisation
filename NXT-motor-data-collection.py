@@ -295,16 +295,31 @@ def run_characterisation_drive(mode) :
 	except :
 		print("Failed to write data to file!!")
 
+run_forwards() :
+
+	times = arange(0, 10, sample_rate)
+
+	for time in time :
+		motor_control(200,200)
+
 
 #---------------------------------------------------------------------------------------
 # Run experiments
 #
 #---------------------------------------------------------------------------------------
 
-encoder_calibration = True
-motor_characterisation = True
+drive_forward_characterisation = True
+turn_left_characterisation = True
+turn_right_characterisation = True
+forwards = True
 
-if encoder_calibration :
-	run_encoder_calibration()
-if motor_characterisation :
-	run_motor_characterisation()
+if drive_forward_characterisation :
+	run_characterisation_drive("forward")
+if turn_left_characterisation :
+	run_characterisation_drive("left")
+if turn_right_characterisation :
+	run_characterisation_drive("right")
+
+if forwards :
+	run_forwards()
+
