@@ -309,7 +309,7 @@ def run_turn_left_characterisation(sample_rate=0.1) :
 
 	sample_times = np.arange(0, 10, sample_rate)
 
-	headings = np.array()
+	headings = []
 
 	for sample_time in sample_times :
 		headings.append(get_heading())
