@@ -301,6 +301,7 @@ def run_forwards_characterisation(sample_rate=0.1) :
 
 	for time in times :
 		motor_control(200,200)
+		time.sleep(sample_rate)
 	motor_stop()
 
 def run_turn_left_characterisation(sample_rate=0.1) :
@@ -310,12 +311,13 @@ def run_turn_left_characterisation(sample_rate=0.1) :
 	initial_heading = get_heading()
 
 	for time in times :
-		motor_control(150,200)
-		print("Heading: {0}".format(get_heading())
+		motor_control(200,200)
+		print("Heading: {0}".format(get_heading()))
+		time.sleep(sample_rate)
 	motor_stop()
 
-	print("Initial heading: {0}".format(initial_heading)
-	print("Final heading: {0}".format(get_heading())
+	print("Initial heading: {0}".format(initial_heading))
+	print("Final heading: {0}".format(get_heading()))
 
 
 #---------------------------------------------------------------------------------------
