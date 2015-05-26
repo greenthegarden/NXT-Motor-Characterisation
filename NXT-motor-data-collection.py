@@ -297,7 +297,7 @@ def run_characterisation_drive(mode) :
 
 def run_forwards() :
 
-	times = arange(0, 10, sample_rate)
+	times = np.arange(0, 10, sample_rate)
 
 	for time in time :
 		motor_control(200,200)
