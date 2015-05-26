@@ -22,24 +22,75 @@ BrickPiSetup()
 # Configure sensors on BrickPi
 BrickPiSetupSensors()
 
-port_rh_motor = PORT_A
 port_lh_motor = PORT_D
+port_rh_motor = PORT_A
 
 # Define motors
-BrickPi.MotorEnable[port_rh_motor] = 1 #Enable the right drive motor
 BrickPi.MotorEnable[port_lh_motor] = 1 #Enable the left drive motor
+BrickPi.MotorEnable[port_rh_motor] = 1 #Enable the right drive motor
 
-def motorControl(powerLeft, powerRight) :
+POWER_MAX = 255
+POWER_MIN = 70
+
+def motor_control(powerLeft, powerRight) :
 	BrickPi.MotorSpeed[port_lh_motor] = powerLeft
 	BrickPi.MotorSpeed[port_rh_motor] = powerRight
 	BrickPiUpdateValues()
 
-def motorDrive(power_level) :
+def motor_differential_drive(power_level_1, power_level_2)
+	motor_control(power_level_1, power_level_2)
+
+def drive_forward(power_level) :
 	motorControl(power_level,power_level)
 
-def motorStop() :
-	motorControl(0,0)
+def drive_backwards(power_level) :
+	motor_control(-power_level, -power_level)
 
+import angle
+
+def sharp_turn_left() :
+	motor_control(-POWER_MAX,POWER_MAX)
+
+def sharp_turn_right() :
+	motor_control(POWER_MAX,-POWER_MAX)
+
+def turn_left(power)
+	motor_control(power, 0)
+
+def turn_right(power)
+	motor_control(0, power)
+
+def turn_by_degrees(degrees) :
+	initial_heading = angles.Angle(get_heading())
+	required_heading = initial_heading + angles.Angle(degrees)
+	if degrees > 0 :
+		while heading - initiaal_heading > 0		# turn to right
+			turn_right()
+	if degrees < 0 ;
+		while heading - initiaal_heading > 0		# turn to right
+			turn_left()
+
+def turn_to_heading(requested_heading) :
+	current_heading = get_heading()
+	if not current_heading > (requested_heading - 1) and current_heading < (requested_heading + 1) :
+		turn_by_degrees()
+
+
+def motor_stop() :
+	motor_control(0,0)
+
+def motor_position(port, position_print=False) :
+	result = BrickPiUpdateValues()
+	if not result :
+		position = (BrickPi.Encoder[port]%720)/2.0
+		if position_print :
+			print("position: {0}".format(position))
+		return position
+	else :
+		return -1
+
+
+import numpy as np
 
 #---------------------------------------------------------------------------------------
 # Following code to read data from a BerryIMU
@@ -55,10 +106,10 @@ import datetime
 bus = smbus.SMBus(1)
 
 RAD_TO_DEG = 57.29578
-M_PI = 3.14159265358979323846
-G_GAIN = 0.070  # [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
-LP = 0.041      # Loop period = 41ms.   This needs to match the time it takes each loop to run
-AA =  0.90      # Complementary filter constant
+M_PI       = np.pi
+G_GAIN     = 0.070  # [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
+LP         = 0.041  # Loop period = 41ms.   This needs to match the time it takes each loop to run
+AA         = 0.90   # Complementary filter constant
 
 def writeACC(register,value) :
 	bus.write_byte_data(ACC_ADDRESS , register, value)
@@ -185,82 +236,69 @@ def imu_reading() :
 	CFangleX=AA*(CFangleX+rate_gyr_x*LP) +(1 - AA) * AccXangle;
 	CFangleY=AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle;
 
-	heading = 180 * math.atan2(readMAGy(),readMAGx())/M_PI
-
-	if heading < 0 :
-		heading += 360;
-
 	logger.info("AccXangle: %d, Heading: %d, gyroZangle: %d" % (AccXangle, heading, gyroZangle))
 
+def get_heading() :
+	heading = 180 * math.atan2(readMAGy(),readMAGx())/M_PI
+	if heading < 0 :
+		heading += 360;
+	logger.info("Heading: %d" % (heading))
+	return heading
 
 #---------------------------------------------------------------------------------------
 # Definition of experiments
 #
 #---------------------------------------------------------------------------------------
 
-def encoder_calibration() :
-	power = 70
-	ports = [port_rh_motor, port_lh_motor]
+def run_characterisation_drive(mode) :
 
-	for port in ports :
-		print("Motor on port {0}".format(port))
-		# get position
-		result = BrickPiUpdateValues()
-		if not result :
-			position = (BrickPi.Encoder[port]%720)/2.0
-			print("position: {0}".format(position))
-		# if motor not near zero rotate until at zero
-		while position > 1 :
-			BrickPi.MotorSpeed[port] = power
-			result = BrickPiUpdateValues()
-			if not result :
-				position = (BrickPi.Encoder[port]%720)/2.0
-				print("position: {0}".format(position))
-				if position < 1 and position > 359 :
-					BrickPi.MotorSpeed[port] = 0
-					BrickPiUpdateValues()
-			time.sleep(.05)
-
-		BrickPi.MotorSpeed[port] = 0
-		BrickPiUpdateValues()
-
-import time
-
-def motor_characterisation() :
-
+	print("Load input power level signal from file {0}".format("signal.mat"))
 	# load signal
 	import scipy.io as io
 	# import data from mat file
-	signal = io.loadmat("signal.mat", squeeze_me=True)
+	signal = io.loadmat("signal.mat",squeeze_me=True)
+	# extract data from signal data
+	sample_rate   = signal['sample_rate']
+	times         = signal['times']
+	power_samples = signal['power']
 
-	sample_rate  = signal['sample_rate']
-	times        = signal['times']
-	power_levels = signal['power']
+	print("Starting NXT drive test")
 
-	print "Power levels loaded"
-	print "Running motors"
+	import time
 
-	measurement_times    = []
-	rhm_angular_postions = []
-	lhm_angular_postions = []
-
-	for power_level in power_levels :
-		motorDrive(int(power_level))
-		result = BrickPiUpdateValues()
-		if not result :
-			measurement_times.append(time.time())
-			# motor readings
-			rhm_angular_positions.append((BrickPi.Encoder[port_rh_motor]%720)/2.0)
-			lhm_angular_positions.append((BrickPi.Encoder[port_lh_motor]%720)/2.0)
+	# create array for store results
+	measurement_times     = []
+	power_levels          = []
+	lhm_angular_positions = []
+	rhm_angular_positions = []
+	headings              = []
+	for power_sample in power_samples :
+		if mode == "drive" :
+			motor_control(int(power_sample),int(power_sample))
+		else if mode == "left" :
+			motor_control(int(power_sample),0)
+		else if mode == "right" :
+			motor_control(int(power_sample),0)
+		measurement_times.append(time.time())
+		power_levels.append(power_sample)
+		motor_position(port, position_print=False) :
+		lhm_angular_positions.append(motor_position(port_lh_motor))
+		rhm_angular_positions.append(motor_position(port_rh_motor))
+		headings.append(get_heading())
 		time.sleep(sample_rate)
+	motor_stop()
 
 	# write data to mat file
-	io.savemat("output.mat", {"times"                : times,
-                            "power_levels"         : power_levels,
-                            "measurement_times"    : measurement_times,
-                            "rhm_angular_positions": rhm_angular_positions,
-                            "lhm_angular_positions": lhm_angular_positions,
-                            })
+	try :
+		io.savemat("output.mat", {"measurement_times"    : measurement_times,
+                              "power_levels"         : power_levels,
+                              "rhm_angular_positions": rhm_angular_positions,
+                              "lhm_angular_positions": lhm_angular_positions,
+                              })
+		print("Recorded data saved to file {0}".format("output.mat"))
+	except :
+		print("Failed to write data to file!!")
+
 
 #---------------------------------------------------------------------------------------
 # Run experiments
@@ -270,5 +308,7 @@ def motor_characterisation() :
 encoder_calibration = True
 motor_characterisation = True
 
-encoder_calibration()
-motor_characterisation()
+if encoder_calibration :
+	run_encoder_calibration()
+if motor_characterisation :
+	run_motor_characterisation()
