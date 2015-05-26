@@ -37,9 +37,6 @@ def motor_control(powerLeft, powerRight) :
 	BrickPi.MotorSpeed[port_rh_motor] = powerRight
 	BrickPiUpdateValues()
 
-def motor_differential_drive(power_level_1, power_level_2)
-	motor_control(power_level_1, power_level_2)
-
 def drive_forward(power_level) :
 	motorControl(power_level,power_level)
 
@@ -54,27 +51,26 @@ def sharp_turn_left() :
 def sharp_turn_right() :
 	motor_control(POWER_MAX,-POWER_MAX)
 
-def turn_left(power)
+def turn_left(power) :
 	motor_control(power, 0)
 
-def turn_right(power)
+def turn_right(power) :
 	motor_control(0, power)
 
-def turn_by_degrees(degrees) :
-	initial_heading = angles.Angle(get_heading())
-	required_heading = initial_heading + angles.Angle(degrees)
-	if degrees > 0 :
-		while heading - initiaal_heading > 0		# turn to right
-			turn_right()
-	if degrees < 0 ;
-		while heading - initiaal_heading > 0		# turn to right
-			turn_left()
-
-def turn_to_heading(requested_heading) :
-	current_heading = get_heading()
-	if not current_heading > (requested_heading - 1) and current_heading < (requested_heading + 1) :
-		turn_by_degrees()
-
+# def turn_by_degrees(degrees) :
+# 	initial_heading = angles.Angle(get_heading())
+# 	required_heading = initial_heading + angles.Angle(degrees)
+# 	if degrees > 0 :
+# 		while heading - initiaal_heading > 0		# turn to right
+# 			turn_right()
+# 	if degrees < 0 ;
+# 		while heading - initiaal_heading > 0		# turn to right
+# 			turn_left()
+#
+# def turn_to_heading(requested_heading) :
+# 	current_heading = get_heading()
+# 	if not current_heading > (requested_heading - 1) and current_heading < (requested_heading + 1) :
+# 		turn_by_degrees()
 
 def motor_stop() :
 	motor_control(0,0)
@@ -275,13 +271,12 @@ def run_characterisation_drive(mode) :
 	for power_sample in power_samples :
 		if mode == "drive" :
 			motor_control(int(power_sample),int(power_sample))
-		else if mode == "left" :
+		elif mode == "left" :
 			motor_control(int(power_sample),0)
-		else if mode == "right" :
+		elif mode == "right" :
 			motor_control(int(power_sample),0)
 		measurement_times.append(time.time())
 		power_levels.append(power_sample)
-		motor_position(port, position_print=False) :
 		lhm_angular_positions.append(motor_position(port_lh_motor))
 		rhm_angular_positions.append(motor_position(port_rh_motor))
 		headings.append(get_heading())
@@ -294,6 +289,7 @@ def run_characterisation_drive(mode) :
                               "power_levels"         : power_levels,
                               "rhm_angular_positions": rhm_angular_positions,
                               "lhm_angular_positions": lhm_angular_positions,
+                              "headings"             : headings,
                               })
 		print("Recorded data saved to file {0}".format("output.mat"))
 	except :
