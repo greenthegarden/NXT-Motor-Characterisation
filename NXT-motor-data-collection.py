@@ -43,7 +43,7 @@ def drive_forward(power_level) :
 def drive_backwards(power_level) :
 	motor_control(-power_level, -power_level)
 
-import angle
+import angles
 
 def sharp_turn_left() :
 	motor_control(-POWER_MAX,POWER_MAX)
