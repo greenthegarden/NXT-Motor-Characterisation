@@ -300,6 +300,8 @@ def run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_pow
 #	lhm_power_level = 200
 #	rhm_power_level = 150
 
+	print("Power levels => lhm: {0}, rhm: {1}".format(lhm_power_level,rhm_power_level))
+
 	sample_times = np.arange(0, 10, sample_rate)
 
 	measurement_times     = []
@@ -309,7 +311,10 @@ def run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_pow
 	rhm_angular_positions = []
 	headings              = []
 
-	for sample_time in sample_times :
+	init_time = time.time()
+
+	while time.time() < init_time + 10 :
+	#for sample_time in sample_times :
 		motor_control(lhm_power_level,rhm_power_level)
 		measurement_times.append(time.time())
 		lhm_power_levels.append(lhm_power_level)
@@ -329,7 +334,7 @@ def run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_pow
 														 "rhm_angular_positions": rhm_angular_positions,
 														 "headings"             : headings,
 														 })
-	print("Recorded data saved to file {0}".format("drive.mat"))
+		print("Recorded data saved to file {0}".format("drive.mat"))
 	except :
 		print("Failed to write data to file!!")
 
