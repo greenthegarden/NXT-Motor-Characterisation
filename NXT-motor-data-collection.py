@@ -296,30 +296,43 @@ def run_characterisation_drive(mode) :
 	except :
 		print("Failed to write data to file!!")
 
-def run_forwards_characterisation(sample_rate=0.1) :
+def run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_power_level = 150) :
+
+#	lhm_power_level = 200
+#	rhm_power_level = 150
 
 	sample_times = np.arange(0, 10*1/sample_rate, sample_rate)
 
-	for sample_time in sample_times :
-		motor_control(200,200)
-		time.sleep(sample_rate)
-	motor_stop()
-
-def run_turn_left_characterisation(sample_rate=0.1) :
-
-	sample_times = np.arange(0, 10, sample_rate)
-
-	headings = []
+	measurement_times     = []
+	lhm_power_levels      = []
+	rhm_power_levels      = []
+	lhm_angular_positions = []
+	rhm_angular_positions = []
+	headings              = []
 
 	for sample_time in sample_times :
+		motor_control(lhm_power_level,rhm_power_level)
+		measurement_times.append(time.time())
+		lhm_power_levels.append(lhm_power_level)
+		rhm_power_levels.append(rhm_power_level)
+		lhm_angular_positions.append(motor_position(port_lh_motor))
+		rhm_angular_positions.append(motor_position(port_rh_motor))
 		headings.append(get_heading())
-		motor_control(150,200)
 		time.sleep(sample_rate)
 	motor_stop()
-	headings.append(get_heading())
 
-	print("Initial heading: {0}".format(headings[0]))
-	print("Final heading: {0}".format(headings[-1]))
+	# write data to mat file
+	try :
+		io.savemat("drive.mat", {"measurement_times"    : measurement_times,
+		                         "lhm_power_levels"     : lhm_power_levels,
+                             "rhm_power_levels"     : rhm_power_levels,
+                             "lhm_angular_positions": lhm_angular_positions,
+                             "rhm_angular_positions": rhm_angular_positions,
+                             "headings"             : headings,
+                             })
+		print("Recorded data saved to file {0}".format("drive.mat"))
+	except :
+		print("Failed to write data to file!!")
 
 
 #---------------------------------------------------------------------------------------
@@ -330,8 +343,7 @@ def run_turn_left_characterisation(sample_rate=0.1) :
 drive_forward_characterisation = False
 turn_left_characterisation = False
 turn_right_characterisation = False
-forwards = False
-turn_left = True
+drive = False
 
 if drive_forward_characterisation :
 	run_characterisation_drive("forward")
@@ -340,7 +352,5 @@ if turn_left_characterisation :
 if turn_right_characterisation :
 	run_characterisation_drive("right")
 
-if forwards :
-	run_forwards_characterisation()
-if turn_left :
-	run_turn_left_characterisation()
+if drive :
+	run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_power_level = 150)
