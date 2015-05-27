@@ -37,41 +37,6 @@ def motor_control(powerLeft, powerRight) :
 	BrickPi.MotorSpeed[port_rh_motor] = powerRight
 	BrickPiUpdateValues()
 
-def drive_forward(power_level) :
-	motorControl(power_level,power_level)
-
-def drive_backwards(power_level) :
-	motor_control(-power_level, -power_level)
-
-import angles
-
-def sharp_turn_left() :
-	motor_control(-POWER_MAX,POWER_MAX)
-
-def sharp_turn_right() :
-	motor_control(POWER_MAX,-POWER_MAX)
-
-def turn_left(power) :
-	motor_control(power, 0)
-
-def turn_right(power) :
-	motor_control(0, power)
-
-# def turn_by_degrees(degrees) :
-# 	initial_heading = angles.Angle(get_heading())
-# 	required_heading = initial_heading + angles.Angle(degrees)
-# 	if degrees > 0 :
-# 		while heading - initiaal_heading > 0		# turn to right
-# 			turn_right()
-# 	if degrees < 0 ;
-# 		while heading - initiaal_heading > 0		# turn to right
-# 			turn_left()
-#
-# def turn_to_heading(requested_heading) :
-# 	current_heading = get_heading()
-# 	if not current_heading > (requested_heading - 1) and current_heading < (requested_heading + 1) :
-# 		turn_by_degrees()
-
 def motor_stop() :
 	motor_control(0,0)
 
@@ -86,8 +51,6 @@ def motor_position(port, position_print=False) :
 		return -1
 
 
-import numpy as np
-
 #---------------------------------------------------------------------------------------
 # Following code to read data from a BerryIMU
 # See: http://ozzmaker.com/2014/12/11/berryimu/#
@@ -100,6 +63,8 @@ import math
 from LSM9DS0 import *
 import datetime
 bus = smbus.SMBus(1)
+
+import numpy as np
 
 RAD_TO_DEG = 57.29578
 M_PI       = np.pi
@@ -241,6 +206,7 @@ def get_heading() :
 #	logger.info("Heading: %d" % (heading))
 	return heading
 
+
 #---------------------------------------------------------------------------------------
 # Definition of experiments
 #
@@ -249,60 +215,12 @@ def get_heading() :
 import scipy.io as io
 import time
 
-def run_characterisation_drive(mode) :
-
-	print("Load input power level signal from file {0}".format("signal.mat"))
-	# import signal data from mat file
-	signal = io.loadmat("signal.mat",squeeze_me=True)
-	# extract data from signal data
-	sample_rate   = signal['sample_rate']
-	times         = signal['times']
-	power_samples = signal['power']
-
-	print("Starting NXT drive test")
-
-
-	# create array for store results
-	measurement_times     = []
-	power_levels          = []
-	lhm_angular_positions = []
-	rhm_angular_positions = []
-	headings              = []
-	for power_sample in power_samples :
-		if mode == "drive" :
-			motor_control(int(power_sample),int(power_sample))
-		elif mode == "left" :
-			motor_control(int(power_sample),0)
-		elif mode == "right" :
-			motor_control(int(power_sample),0)
-		measurement_times.append(time.time())
-		power_levels.append(power_sample)
-		lhm_angular_positions.append(motor_position(port_lh_motor))
-		rhm_angular_positions.append(motor_position(port_rh_motor))
-		headings.append(get_heading())
-		time.sleep(sample_rate)
-	motor_stop()
-
-	# write data to mat file
-	try :
-		io.savemat("output.mat", {"measurement_times"    : measurement_times,
-                              "power_levels"         : power_levels,
-                              "rhm_angular_positions": rhm_angular_positions,
-                              "lhm_angular_positions": lhm_angular_positions,
-                              "headings"             : headings,
-                              })
-		print("Recorded data saved to file {0}".format("output.mat"))
-	except :
-		print("Failed to write data to file!!")
-
-def run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_power_level = 150) :
-
-#	lhm_power_level = 200
-#	rhm_power_level = 150
+def run_characterisation_drive(sample_rate=0.1,
+                               lhm_power_level = 200,
+                               rhm_power_level = 150
+                               ) :
 
 	print("Power levels => lhm: {0}, rhm: {1}".format(lhm_power_level,rhm_power_level))
-
-	sample_times = np.arange(0, 10, sample_rate)
 
 	measurement_times     = []
 	lhm_power_levels      = []
@@ -314,7 +232,6 @@ def run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_pow
 	init_time = time.time()
 
 	while time.time() < init_time + 10 :
-	#for sample_time in sample_times :
 		motor_control(lhm_power_level,rhm_power_level)
 		measurement_times.append(time.time())
 		lhm_power_levels.append(lhm_power_level)
@@ -344,17 +261,4 @@ def run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_pow
 #
 #---------------------------------------------------------------------------------------
 
-drive_forward_characterisation = False
-turn_left_characterisation = False
-turn_right_characterisation = False
-drive = True
-
-if drive_forward_characterisation :
-	run_characterisation_drive("forward")
-if turn_left_characterisation :
-	run_characterisation_drive("left")
-if turn_right_characterisation :
-	run_characterisation_drive("right")
-
-if drive :
-	run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_power_level = 200)
+run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_power_level = 200)
