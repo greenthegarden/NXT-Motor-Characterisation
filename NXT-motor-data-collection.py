@@ -246,14 +246,13 @@ def get_heading() :
 #
 #---------------------------------------------------------------------------------------
 
+import scipy.io as io
 import time
 
 def run_characterisation_drive(mode) :
 
 	print("Load input power level signal from file {0}".format("signal.mat"))
-	# load signal
-	import scipy.io as io
-	# import data from mat file
+	# import signal data from mat file
 	signal = io.loadmat("signal.mat",squeeze_me=True)
 	# extract data from signal data
 	sample_rate   = signal['sample_rate']
@@ -324,13 +323,13 @@ def run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_pow
 	# write data to mat file
 	try :
 		io.savemat("drive.mat", {"measurement_times"    : measurement_times,
-		                         "lhm_power_levels"     : lhm_power_levels,
-                             "rhm_power_levels"     : rhm_power_levels,
-                             "lhm_angular_positions": lhm_angular_positions,
-                             "rhm_angular_positions": rhm_angular_positions,
-                             "headings"             : headings,
-                             })
-		print("Recorded data saved to file {0}".format("drive.mat"))
+														 "lhm_power_levels"     : lhm_power_levels,
+														 "rhm_power_levels"     : rhm_power_levels,
+														 "lhm_angular_positions": lhm_angular_positions,
+														 "rhm_angular_positions": rhm_angular_positions,
+														 "headings"             : headings,
+														 })
+	print("Recorded data saved to file {0}".format("drive.mat"))
 	except :
 		print("Failed to write data to file!!")
 
