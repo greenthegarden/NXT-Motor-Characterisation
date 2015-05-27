@@ -357,4 +357,4 @@ if turn_right_characterisation :
 	run_characterisation_drive("right")
 
 if drive :
-	run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_power_level = 150)
+	run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_power_level = 200)
