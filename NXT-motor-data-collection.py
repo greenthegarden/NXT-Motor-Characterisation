@@ -301,7 +301,7 @@ def run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_pow
 #	lhm_power_level = 200
 #	rhm_power_level = 150
 
-	sample_times = np.arange(0, 10*1/sample_rate, sample_rate)
+	sample_times = np.arange(0, 10, sample_rate)
 
 	measurement_times     = []
 	lhm_power_levels      = []
@@ -343,7 +343,7 @@ def run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_pow
 drive_forward_characterisation = False
 turn_left_characterisation = False
 turn_right_characterisation = False
-drive = False
+drive = True
 
 if drive_forward_characterisation :
 	run_characterisation_drive("forward")
