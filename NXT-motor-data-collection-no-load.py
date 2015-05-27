@@ -16,6 +16,9 @@
 
 from BrickPi import *
 
+POWER_MAX = 255
+POWER_MIN = 70		# minimum power at which motors will still turn
+
 # setup the serial port for communication
 BrickPiSetup()
 
@@ -54,7 +57,7 @@ def motor_position(port, position_print=False) :
 #---------------------------------------------------------------------------------------
 
 def run_encoder_calibration() :
-	power_level = 70
+	power_level = POWER_MIN
 	for motor_port in motor_ports :
 		print("Motor on port {0}".format(motor_port))
 		# get position
@@ -86,7 +89,7 @@ def run_motor_characterisation() :
 	import time
 
 	# create array for store results for each motor
-	motor_results     = [[] for x in motor_ports]
+	motor_results     = [[] for x in motor_ports+1]
 
 	for idx, value in enumerate(motor_results) :
 		motor_port = int(motor_ports[idx])
@@ -111,11 +114,11 @@ def run_motor_characterisation() :
 		value.append(angular_positions)
 
 	# write data to mat file
-#	try :
-	io.savemat("output.mat", {"motor_results" : motor_results})
-	print("Recorded data saved to file {0}".format("output.mat"))
-#	except :
-#		print("Failed to write data to file!!")
+	try :
+		io.savemat("output.mat", {"motor_results" : motor_results})
+		print("Recorded data saved to file {0}".format("output.mat"))
+	except :
+		print("Failed to write data to file!!")
 
 #---------------------------------------------------------------------------------------
 # Run experiments
