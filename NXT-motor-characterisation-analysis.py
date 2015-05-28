@@ -12,13 +12,11 @@ import numpy as np
 
 motor_results = np.array(output['motor_results'])
 
-
-print len(motor_results)
-print motor_results[0]
+#print len(motor_results)
+#print motor_results[0]
 
 import matplotlib.pyplot as plt
 
-#try :
 for motor_result in motor_results :
 	port              = motor_result[0]
 	measurement_times = np.array(motor_result[1])

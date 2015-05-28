@@ -244,14 +244,15 @@ def run_characterisation_drive(sample_rate=0.1,
 
 	# write data to mat file
 	try :
-		io.savemat("drive.mat", {"measurement_times"    : measurement_times,
-														 "lhm_power_levels"     : lhm_power_levels,
-														 "rhm_power_levels"     : rhm_power_levels,
-														 "lhm_angular_positions": lhm_angular_positions,
-														 "rhm_angular_positions": rhm_angular_positions,
-														 "headings"             : headings,
-														 })
-		print("Recorded data saved to file {0}".format("drive.mat"))
+		outfile = "drive_" + "lhm-" + str(lhm_power_level) + "_rhm-" + str(rhm_power_level) + "_" + str(int(time.time())) + ".mat"
+		io.savemat(outfile, {"measurement_times"    : measurement_times,
+                         "lhm_power_levels"     : lhm_power_levels,
+                         "rhm_power_levels"     : rhm_power_levels,
+                         "lhm_angular_positions": lhm_angular_positions,
+                         "rhm_angular_positions": rhm_angular_positions,
+                         "headings"             : headings,
+                         })
+		print("Recorded data saved to file {0}".format(outfile))
 	except :
 		print("Failed to write data to file!!")
 
