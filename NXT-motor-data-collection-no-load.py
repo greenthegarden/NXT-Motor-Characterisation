@@ -25,7 +25,8 @@ BrickPiSetup()
 # Configure sensors on BrickPi
 BrickPiSetupSensors()
 
-motor_ports = [PORT_A, PORT_D, PORT_C]
+motor_ports = [PORT_A, PORT_D]
+#motor_ports = [PORT_A, PORT_D, PORT_C]
 
 # Define motors
 for motor_port in motor_ports :
@@ -89,7 +90,7 @@ def run_motor_characterisation() :
 	import time
 
 	# create array for store results for each motor
-	motor_results     = [[] for x in motor_ports+1]
+	motor_results     = [[] for x in motor_ports]
 
 	for idx, value in enumerate(motor_results) :
 		motor_port = int(motor_ports[idx])
@@ -115,8 +116,9 @@ def run_motor_characterisation() :
 
 	# write data to mat file
 	try :
-		io.savemat("output.mat", {"motor_results" : motor_results})
-		print("Recorded data saved to file {0}".format("output.mat"))
+		outfile = "output_" + str(int(time.time())) + ".mat"
+		io.savemat(outfile, {"motor_results" : motor_results})
+		print("Recorded data saved to file {0}".format(outfile))
 	except :
 		print("Failed to write data to file!!")
 

@@ -261,4 +261,4 @@ def run_characterisation_drive(sample_rate=0.1,
 #
 #---------------------------------------------------------------------------------------
 
-run_characterisation_driving(sample_rate=0.1, lhm_power_level = 200, rhm_power_level = 200)
+run_characterisation_drive(sample_rate=0.1, lhm_power_level = 200, rhm_power_level = 200)
