@@ -37,19 +37,21 @@ BrickPiSetup()
 # Configure sensors on BrickPi
 BrickPiSetupSensors()
 
-PORT_LH_MOTOR = config['motor_ports_cfg']['PORT_LH_MOTOR']
-PORT_RH_MOTOR = config['motor_ports_cfg']['PORT_RH_MOTOR']
+#PORT_LH_MOTOR = config['motor_ports_cfg']['PORT_LH_MOTOR']
+#PORT_RH_MOTOR = config['motor_ports_cfg']['PORT_RH_MOTOR']
+PORT_LH_MOTOR = PORT_D 
+PORT_RH_MOTOR = PORT_A 
 
 # Define motors
-BrickPi.MotorEnable[port_lh_motor] = 1 #Enable the left drive motor
-BrickPi.MotorEnable[port_rh_motor] = 1 #Enable the right drive motor
+BrickPi.MotorEnable[PORT_LH_MOTOR] = 1 #Enable the left drive motor
+BrickPi.MotorEnable[PORT_RH_MOTOR] = 1 #Enable the right drive motor
 
 POWER_MAX = int(config['motor_spec_cfg']['POWER_MAX'])
 POWER_MIN = int(config['motor_spec_cfg']['POWER_MIN'])
 
 def motor_control(powerLeft, powerRight) :
-	BrickPi.MotorSpeed[port_lh_motor] = powerLeft
-	BrickPi.MotorSpeed[port_rh_motor] = powerRight
+	BrickPi.MotorSpeed[PORT_LH_MOTOR] = powerLeft
+	BrickPi.MotorSpeed[PORT_RH_MOTOR] = powerRight
 	BrickPiUpdateValues()
 
 def motor_stop() :
@@ -246,13 +248,13 @@ def run_characterisation_drive(sample_rate     = float(config['test_defaults_cfg
 
 	init_time = time.time()
 
-	while time.time() < init_time + config['test_defaults_cfg']['DURATION'] :
+	while time.time() < init_time + int(config['test_defaults_cfg']['DURATION']) :
 		motor_control(lhm_power_level,rhm_power_level)
 		measurement_times.append(time.time())
 		lhm_power_levels.append(lhm_power_level)
 		rhm_power_levels.append(rhm_power_level)
-		lhm_angular_positions.append(motor_position(port_lh_motor))
-		rhm_angular_positions.append(motor_position(port_rh_motor))
+		lhm_angular_positions.append(motor_position(PORT_LH_MOTOR))
+		rhm_angular_positions.append(motor_position(PORT_RH_MOTOR))
 		headings.append(get_heading())
 		time.sleep(sample_rate)
 	motor_stop()
@@ -295,7 +297,7 @@ def main(argv):
 			 sys.exit()
 		elif opt in ("-s", "--sample_rate"):
 			 sample_rate = float(arg)
-		elif opt in ("-d", "--duration):
+		elif opt in ("-d", "--duration"):
 			 duration = int(arg)
 		elif opt in ("-l", "--lhm_power_level"):
 			 lhm_power_level = int(arg)
