@@ -230,9 +230,9 @@ def get_heading() :
 import scipy.io as io
 import time
 
-def run_characterisation_drive(sample_rate     = float(config['test_conditions_cfg']['SAMPLE_RATE']),
-                               lhm_power_level = int(config['test_conditions_cfg']['LHM_POWER_LEVEL']),
-                               rhm_power_level = int(config['test_conditions_cfg']['RHM_POWER_LEVEL'])
+def run_characterisation_drive(sample_rate     = float(config['test_defaults_cfg']['SAMPLE_RATE']),
+                               lhm_power_level = int(config['test_defaults_cfg']['LHM_POWER_LEVEL']),
+                               rhm_power_level = int(config['test_defaults_cfg']['RHM_POWER_LEVEL'])
                                ) :
 
 	print("Power levels => lhm: {0}, rhm: {1}".format(lhm_power_level,rhm_power_level))
@@ -246,7 +246,7 @@ def run_characterisation_drive(sample_rate     = float(config['test_conditions_c
 
 	init_time = time.time()
 
-	while time.time() < init_time + 10 :
+	while time.time() < init_time + config['test_defaults_cfg']['DURATION'] :
 		motor_control(lhm_power_level,rhm_power_level)
 		measurement_times.append(time.time())
 		lhm_power_levels.append(lhm_power_level)
@@ -280,11 +280,12 @@ def run_characterisation_drive(sample_rate     = float(config['test_conditions_c
 import sys, getopt
 
 def main(argv):
-	sample_rate     = float(config['test_conditions_cfg']['SAMPLE_RATE'])
-	lhm_power_level = int(config['test_conditions_cfg']['LHM_POWER_LEVEL'])
-	rhm_power_level = int(config['test_conditions_cfg']['RHM_POWER_LEVEL'])
+	sample_rate     = float(config['test_defaults_cfg']['SAMPLE_RATE'])
+	duration        = int(config['test_defaults_cfg']['DURATION'])
+	lhm_power_level = int(config['test_defaults_cfg']['LHM_POWER_LEVEL'])
+	rhm_power_level = int(config['test_defaults_cfg']['RHM_POWER_LEVEL'])
 	try:
-		opts, args = getopt.getopt(argv,"hs:l:r:",["sample_rate=","lhm_power_level=","rhm_power_level="])
+		opts, args = getopt.getopt(argv,"hs:d:l:r:",["sample_rate=","duration=","lhm_power_level=","rhm_power_level="])
 	except getopt.GetoptError:
 		print 'NXT-motor-data-collection.py -s <sample_rate> -l <lhm_power_level> -r <rhm_power_level>'
 		sys.exit(2)
@@ -294,11 +295,14 @@ def main(argv):
 			 sys.exit()
 		elif opt in ("-s", "--sample_rate"):
 			 sample_rate = float(arg)
+		elif opt in ("-d", "--duration):
+			 duration = int(arg)
 		elif opt in ("-l", "--lhm_power_level"):
-			 lhm_power_level = float(arg)
+			 lhm_power_level = int(arg)
 		elif opt in ("-r", "--rhm_power_level"):
-			 rhm_power_level = float(arg)
+			 rhm_power_level = int(arg)
 	print("Sample rate is {0}".format(sample_rate))
+	print("Duration is {0}".format(duration))
 	print("LHM Power Level is {0}".format(lhm_power_level))
 	print("RHM Power Level is {0}".format(rhm_power_level))
 

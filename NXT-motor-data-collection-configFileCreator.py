@@ -20,12 +20,13 @@ motor_spec_cfg = {
 config['motor_spec_cfg'] = motor_spec_cfg
 
 # Test Conditions
-test_conditions_cfg = {
+test_defaults_cfg = {
 	'SAMPLE_RATE'     : 0.1,
+	'DURATION'        : 10,
 	'LHM_POWER_LEVEL' : 150,
 	'RHM_POWER_LEVEL' : 200,
 	}
-config['test_conditions_cfg'] = test_conditions_cfg
+config['test_defaults_cfg'] = test_defaults_cfg
 
 # file configuration
 file_cfg = {
