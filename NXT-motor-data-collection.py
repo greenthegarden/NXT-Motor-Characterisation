@@ -1,5 +1,20 @@
 #!/usr/bin/env python
 
+#---------------------------------------------------------------------------------------
+# Load configuration values
+#
+#---------------------------------------------------------------------------------------
+
+# see https://wiki.python.org/moin/ConfigParserShootout
+from configobj import ConfigObj
+config = ConfigObj('NXT-motor-data-collection.cfg')
+
+
+#---------------------------------------------------------------------------------------
+# Enable logging
+#
+#---------------------------------------------------------------------------------------
+
 #import logging
 
 #logging.basicConfig(level=logging.DEBUG,
@@ -22,15 +37,15 @@ BrickPiSetup()
 # Configure sensors on BrickPi
 BrickPiSetupSensors()
 
-port_lh_motor = PORT_D
-port_rh_motor = PORT_A
+PORT_LH_MOTOR = config['motor_ports_cfg']['PORT_LH_MOTOR']
+PORT_RH_MOTOR = config['motor_ports_cfg']['PORT_RH_MOTOR']
 
 # Define motors
 BrickPi.MotorEnable[port_lh_motor] = 1 #Enable the left drive motor
 BrickPi.MotorEnable[port_rh_motor] = 1 #Enable the right drive motor
 
-POWER_MAX = 255
-POWER_MIN = 70
+POWER_MAX = int(config['motor_spec_cfg']['POWER_MAX'])
+POWER_MIN = int(config['motor_spec_cfg']['POWER_MIN'])
 
 def motor_control(powerLeft, powerRight) :
 	BrickPi.MotorSpeed[port_lh_motor] = powerLeft
@@ -215,9 +230,9 @@ def get_heading() :
 import scipy.io as io
 import time
 
-def run_characterisation_drive(sample_rate=0.1,
-                               lhm_power_level = 200,
-                               rhm_power_level = 150
+def run_characterisation_drive(sample_rate     = float(config['test_conditions_cfg']['SAMPLE_RATE']),
+                               lhm_power_level = int(config['test_conditions_cfg']['LHM_POWER_LEVEL']),
+                               rhm_power_level = int(config['test_conditions_cfg']['RHM_POWER_LEVEL'])
                                ) :
 
 	print("Power levels => lhm: {0}, rhm: {1}".format(lhm_power_level,rhm_power_level))
@@ -244,7 +259,7 @@ def run_characterisation_drive(sample_rate=0.1,
 
 	# write data to mat file
 	try :
-		outfile = "drive_" + "lhm-" + str(lhm_power_level) + "_rhm-" + str(rhm_power_level) + "_" + str(int(time.time())) + ".mat"
+		outfile = config['file_cfg']['OUT_FILE'] + "lhm-" + str(lhm_power_level) + "_rhm-" + str(rhm_power_level) + "_" + str(int(time.time())) + ".mat"
 		io.savemat(outfile, {"measurement_times"    : measurement_times,
                          "lhm_power_levels"     : lhm_power_levels,
                          "rhm_power_levels"     : rhm_power_levels,
@@ -262,4 +277,33 @@ def run_characterisation_drive(sample_rate=0.1,
 #
 #---------------------------------------------------------------------------------------
 
-run_characterisation_drive(sample_rate=0.1, lhm_power_level = 200, rhm_power_level = 200)
+import sys, getopt
+
+def main(argv):
+	sample_rate     = float(config['test_conditions_cfg']['SAMPLE_RATE'])
+	lhm_power_level = int(config['test_conditions_cfg']['LHM_POWER_LEVEL'])
+	rhm_power_level = int(config['test_conditions_cfg']['RHM_POWER_LEVEL'])
+	try:
+		opts, args = getopt.getopt(argv,"hs:l:r:",["sample_rate=","lhm_power_level=","rhm_power_level="])
+	except getopt.GetoptError:
+		print 'NXT-motor-data-collection.py -s <sample_rate> -l <lhm_power_level> -r <rhm_power_level>'
+		sys.exit(2)
+	for opt, arg in opts :
+		if opt == '-h':
+			 print 'NXT-motor-data-collection.py -s <sample_rate> -l <lhm_power_level> -r <rhm_power_level>'
+			 sys.exit()
+		elif opt in ("-s", "--sample_rate"):
+			 sample_rate = float(arg)
+		elif opt in ("-l", "--lhm_power_level"):
+			 lhm_power_level = float(arg)
+		elif opt in ("-r", "--rhm_power_level"):
+			 rhm_power_level = float(arg)
+	print("Sample rate is {0}".format(sample_rate))
+	print("LHM Power Level is {0}".format(lhm_power_level))
+	print("RHM Power Level is {0}".format(rhm_power_level))
+
+	run_characterisation_drive(sample_rate, lhm_power_level, rhm_power_level)
+
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
