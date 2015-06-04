@@ -1,4 +1,5 @@
 # files with private access keys to prevent uploading to git
 *.mat
 *.cfg
+LSM9DS0.py*
 

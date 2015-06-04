@@ -7,7 +7,7 @@
 
 # see https://wiki.python.org/moin/ConfigParserShootout
 from configobj import ConfigObj
-config = ConfigObj('NXT-motor-charcterisation-analysis.cfg')
+config = ConfigObj('NXT-motor-characterisation-analysis.cfg')
 
 
 #---------------------------------------------------------------------------------------
@@ -19,19 +19,22 @@ from pylab import *
 
 import sys, getopt, os
 
+def print_help() :
+	print("{0} -i <matfile>".format(os.path.basename(__file__)))
+
 def main(argv) :
 	matfile = ''
 	try:
 		opts, args = getopt.getopt(argv,"hi:",["matfile="])
 	except getopt.GetoptError:
-		print("{0} -i <matfile>".format(os.path.basename(__file__))
+		print_help()
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == '-h':
-			 print("{0} -i <matfile>".format(os.path.basename(__file__))
-			 sys.exit()
+			print_help()
+			sys.exit()
 		elif opt in ("-i", "--matfile"):
-			 matfile = arg
+			matfile = arg
 	print("matfile to process {0}".format(matfile))
 
 	try :

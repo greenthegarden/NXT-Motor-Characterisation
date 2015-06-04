@@ -148,7 +148,7 @@ def run_motor_characterisation(sample_file="signal.mat") :
 import sys, getopt, os
 
 def print_help() :
-	print("{0}".format(os.path.basename(__file__))
+	print("{0}".format(os.path.basename(__file__)))
 	print("-e to run encoder calibration")
 	print("-m to run motor characterisation")
 	print("-i <samplefile.mat> to specify a specifc sample mat file")
