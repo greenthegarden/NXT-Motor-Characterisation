@@ -39,8 +39,8 @@ BrickPiSetupSensors()
 
 #PORT_LH_MOTOR = config['motor_ports_cfg']['PORT_LH_MOTOR']
 #PORT_RH_MOTOR = config['motor_ports_cfg']['PORT_RH_MOTOR']
-PORT_LH_MOTOR = PORT_D 
-PORT_RH_MOTOR = PORT_A 
+PORT_LH_MOTOR = PORT_D
+PORT_RH_MOTOR = PORT_A
 
 # Define motors
 BrickPi.MotorEnable[PORT_LH_MOTOR] = 1 #Enable the left drive motor
@@ -249,6 +249,7 @@ def run_characterisation_drive(sample_rate     = float(config['test_defaults_cfg
 	init_time = time.time()
 
 	while time.time() < init_time + int(config['test_defaults_cfg']['DURATION']) :
+		measurement_start.append(time.time())
 		motor_control(lhm_power_level,rhm_power_level)
 		measurement_times.append(time.time())
 		lhm_power_levels.append(lhm_power_level)
@@ -256,7 +257,7 @@ def run_characterisation_drive(sample_rate     = float(config['test_defaults_cfg
 		lhm_angular_positions.append(motor_position(PORT_LH_MOTOR))
 		rhm_angular_positions.append(motor_position(PORT_RH_MOTOR))
 		headings.append(get_heading())
-		time.sleep(sample_rate)
+		time.sleep(sample_rate-(time.time()-measurement_start))
 	motor_stop()
 
 	# write data to mat file

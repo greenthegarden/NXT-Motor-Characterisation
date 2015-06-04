@@ -101,13 +101,14 @@ def run_motor_characterisation() :
 		angular_positions = []
 		ports.append(motor_port)
 		for power_sample in power_samples :
+			measurement_start = time.time()
 			motor_drive(motor_port,int(power_sample))
 			position = motor_position(motor_port)
 			if position is not -1 :
 				measurement_times.append(time.time())
 				power_levels.append(power_sample)
 				angular_positions.append(position)
-			time.sleep(sample_rate)
+			time.sleep(sample_rate-(time.time()-measurement_start))
 		motor_stop(motor_port)
 		value.append(ports)
 		value.append(measurement_times)
