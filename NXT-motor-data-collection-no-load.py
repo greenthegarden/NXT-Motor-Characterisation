@@ -1,5 +1,20 @@
 #!/usr/bin/env python
 
+#---------------------------------------------------------------------------------------
+# Load configuration values
+#
+#---------------------------------------------------------------------------------------
+
+# see https://wiki.python.org/moin/ConfigParserShootout
+from configobj import ConfigObj
+config = ConfigObj('NXT-motor-data-collection.cfg')
+
+
+#---------------------------------------------------------------------------------------
+# Enable logging
+#
+#---------------------------------------------------------------------------------------
+
 #import logging
 
 #logging.basicConfig(level=logging.DEBUG,
@@ -16,8 +31,8 @@
 
 from BrickPi import *
 
-POWER_MAX = 255
-POWER_MIN = 70		# minimum power at which motors will still turn
+POWER_MAX = int(config['motor_spec_cfg']['POWER_MAX'])
+POWER_MIN = int(config['motor_spec_cfg']['POWER_MIN'])
 
 # setup the serial port for communication
 BrickPiSetup()
@@ -52,6 +67,7 @@ def motor_position(port, position_print=False) :
 	else :
 		return -1
 
+
 #---------------------------------------------------------------------------------------
 # Definition of experiments
 #
@@ -73,13 +89,13 @@ def run_encoder_calibration() :
 				time.sleep(.05)
 			motor_stop(motor_port)
 
-def run_motor_characterisation() :
+def run_motor_characterisation(sample_file="signal.mat") :
 
-	print("Load input power level signal from file {0}".format("signal.mat"))
+	print("Load input power level signal from file {0}".format(sample_file))
 	# load signal
 	import scipy.io as io
 	# import data from mat file
-	signal = io.loadmat("signal.mat",squeeze_me=True)
+	signal = io.loadmat(sample_file,squeeze_me=True)
 	# extract data from signal data
 	sample_rate   = signal['sample_rate']
 	times         = signal['times']
@@ -123,15 +139,48 @@ def run_motor_characterisation() :
 	except :
 		print("Failed to write data to file!!")
 
+
 #---------------------------------------------------------------------------------------
 # Run experiments
 #
 #---------------------------------------------------------------------------------------
 
-encoder_calibration = False
-motor_characterisation = True
+import sys, getopt, os
 
-if encoder_calibration :
-	run_encoder_calibration()
-if motor_characterisation :
-	run_motor_characterisation()
+def print_help() :
+	print("{0}".format(os.path.basename(__file__))
+	print("-e to run encoder calibration")
+	print("-m to run motor characterisation")
+	print("-i <samplefile.mat> to specify a specifc sample mat file")
+
+def main(argv) :
+
+	encoder_calibration = False
+	motor_characterisation = False
+	sample_file = config['file_cfg']['SAMPLE_FILE']
+
+	try:
+		opts, args = getopt.getopt(argv,"hemi:",["samplefile="])
+	except getopt.GetoptError:
+		print_help()
+		sys.exit(2)
+	for opt, arg in opts :
+		if opt == '-h':
+			 print_help()
+			 sys.exit()
+		elif opt in ("-e"):
+			 encoder_calibration = True
+		elif opt in ("-m"):
+			 motor_characterisation = True
+		elif opt in ("-i", "--samplefile"):
+			 sample_file = arg
+
+	if encoder_calibration :
+		print("Running encoder calibration")
+		run_encoder_calibration()
+	if motor_characterisation :
+		print("Running motor characterisation with samplefile {0}".format(sample_file))
+		run_motor_characterisation(sample_file)
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
