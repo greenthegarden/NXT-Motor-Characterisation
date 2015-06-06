@@ -69,6 +69,41 @@ def motor_position(port, position_print=False) :
 
 
 #---------------------------------------------------------------------------------------
+# Following code to read data from a USB Optical Mouse
+# See: http://www.orangecoat.com/how-to/read-and-decode-data-from-your-mouse-using-this-pyusb-hack
+# Requires pyusb to be installed
+#---------------------------------------------------------------------------------------
+
+if config['usb_mouse_cfg']['USE_MOUSE'] == 'True' :
+
+	import sys
+	import usb.core
+	import usb.util
+	import usb.control
+
+	# decimal vendor and product values
+	dev = usb.core.find(idVendor=int(config['usb_mouse_cfg']['ID_VENDOR']), idProduct=int(config['usb_mouse_cfg']['ID_PRODUCT']))
+	# or, uncomment the next line to search instead by the hexidecimal equivalent
+	#dev = usb.core.find(idVendor=0x45e, idProduct=0x77d)
+
+	print("configuration: {0}".format(usb.control.get_configuration(dev)))
+	print("status: {0}".format(usb.control.get_status(dev)))
+
+	# first endpoint
+	interface = 0
+	endpoint = dev[0][(0,0)][0]
+
+	def read_mouse() :
+		global endpoint
+		try :
+			data = dev.read(endpoint.bEndpointAddress,endpoint.wMaxPacketSize)
+			print data
+		except usb.core.USBError as e :
+			data = None
+			if e.args == ('Operation timed out',):
+				continue
+
+#---------------------------------------------------------------------------------------
 # Following code to read data from a BerryIMU
 # See: http://ozzmaker.com/2014/12/11/berryimu/#
 # Copied directly from BerryIMU/python-LSM9DS0-gryo-accel-compass/berryIMU.py
@@ -282,7 +317,7 @@ def run_characterisation_drive(sample_rate     = float(config['test_defaults_cfg
 
 import sys, getopt
 
-def main(argv):
+def main(argv) :
 	sample_rate     = float(config['test_defaults_cfg']['SAMPLE_RATE'])
 	duration        = int(config['test_defaults_cfg']['DURATION'])
 	lhm_power_level = int(config['test_defaults_cfg']['LHM_POWER_LEVEL'])
@@ -309,7 +344,22 @@ def main(argv):
 	print("LHM Power Level is {0}".format(lhm_power_level))
 	print("RHM Power Level is {0}".format(rhm_power_level))
 
+	if config['usb_mouse_cfg']['USE_MOUSE'] == 'True' :
+		# if the OS kernel already claimed the device, which is most likely true
+		# thanks to http://stackoverflow.com/questions/8218683/pyusb-cannot-set-configuration
+		if dev.is_kernel_driver_active(interface) is True :
+			# tell the kernel to detach
+			dev.detach_kernel_driver(interface)
+			# claim the device
+			usb.util.claim_interface(dev, interface)
+
 	run_characterisation_drive(sample_rate, lhm_power_level, rhm_power_level)
+
+	if config['usb_mouse_cfg']['USE_MOUSE'] == 'True' :
+		# release the device
+		usb.util.release_interface(dev, interface)
+		# reattach the device to the OS kernel
+		dev.attach_kernel_driver(interface)
 
 
 if __name__ == "__main__":

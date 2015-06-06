@@ -19,6 +19,14 @@ motor_spec_cfg = {
 	}
 config['motor_spec_cfg'] = motor_spec_cfg
 
+# USB Mouse Specifications
+usb_mouse_cfg = {
+	'USE_MOUSE'  : 'True'
+	'ID_VENDOR'  : 1118,
+	'ID_PRODUCT' : 57,
+	}
+config['usb_mouse_cfg'] = usb_mouse_cfg
+
 # Test Conditions
 test_defaults_cfg = {
 	'SAMPLE_RATE'     : 0.1,
