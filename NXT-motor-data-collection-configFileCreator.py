@@ -21,7 +21,7 @@ config['motor_spec_cfg'] = motor_spec_cfg
 
 # USB Mouse Specifications
 usb_mouse_cfg = {
-	'USE_MOUSE'  : 'True'
+	'USE_MOUSE'  : 'False',
 	'ID_VENDOR'  : 1118,
 	'ID_PRODUCT' : 57,
 	}
