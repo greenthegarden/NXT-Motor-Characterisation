@@ -269,8 +269,9 @@ import scipy.io as io
 import time
 
 def run_characterisation_drive(sample_rate     = float(config['test_defaults_cfg']['SAMPLE_RATE']),
+                               duration        = int(config['test_defaults_cfg']['DURATION']),
                                lhm_power_level = int(config['test_defaults_cfg']['LHM_POWER_LEVEL']),
-                               rhm_power_level = int(config['test_defaults_cfg']['RHM_POWER_LEVEL'])
+                               rhm_power_level = int(config['test_defaults_cfg']['RHM_POWER_LEVEL']),
                                ) :
 
 	print("Power levels => lhm: {0}, rhm: {1}".format(lhm_power_level,rhm_power_level))
@@ -285,7 +286,7 @@ def run_characterisation_drive(sample_rate     = float(config['test_defaults_cfg
 
 	init_time = time.time()
 
-	while time.time() < init_time + int(config['test_defaults_cfg']['DURATION']) :
+	while time.time() < init_time + duration :
 		measurement_start = time.time()
 		motor_control(lhm_power_level,rhm_power_level)
 		measurement_times.append(time.time())
@@ -351,11 +352,11 @@ def main(argv) :
 		elif opt in ("-r", "--rhm_power_level"):
 			 rhm_power_level = int(arg)
 	print("Sample rate is {0}".format(sample_rate))
-	print("Duration is {0}".format(duration))
+	print("Duration is {0} seconds".format(duration))
 	print("LHM Power Level is {0}".format(lhm_power_level))
 	print("RHM Power Level is {0}".format(rhm_power_level))
 
-	run_characterisation_drive(sample_rate, lhm_power_level, rhm_power_level)
+	run_characterisation_drive(sample_rate, duration, lhm_power_level, rhm_power_level)
 
 
 if __name__ == "__main__":
