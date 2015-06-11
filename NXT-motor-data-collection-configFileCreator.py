@@ -27,6 +27,12 @@ usb_mouse_cfg = {
 	}
 config['usb_mouse_cfg'] = usb_mouse_cfg
 
+# IMU Configuration
+imu_cfg = {
+	'USE_IMU' : 'False',
+	}
+config['imu_cfg'] = imu_cfg
+
 # Test Conditions
 test_defaults_cfg = {
 	'SAMPLE_RATE'     : 0.1,
