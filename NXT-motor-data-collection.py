@@ -286,7 +286,7 @@ def run_characterisation_drive(sample_rate     = float(config['test_defaults_cfg
 	init_time = time.time()
 
 	while time.time() < init_time + int(config['test_defaults_cfg']['DURATION']) :
-		measurement_start.append(time.time())
+		measurement_start = time.time()
 		motor_control(lhm_power_level,rhm_power_level)
 		measurement_times.append(time.time())
 		lhm_power_levels.append(lhm_power_level)
@@ -355,22 +355,7 @@ def main(argv) :
 	print("LHM Power Level is {0}".format(lhm_power_level))
 	print("RHM Power Level is {0}".format(rhm_power_level))
 
-	if config['usb_mouse_cfg']['USE_MOUSE'] == 'True' :
-		# if the OS kernel already claimed the device, which is most likely true
-		# thanks to http://stackoverflow.com/questions/8218683/pyusb-cannot-set-configuration
-		if dev.is_kernel_driver_active(interface) is True :
-			# tell the kernel to detach
-			dev.detach_kernel_driver(interface)
-			# claim the device
-			usb.util.claim_interface(dev, interface)
-
 	run_characterisation_drive(sample_rate, lhm_power_level, rhm_power_level)
-
-	if config['usb_mouse_cfg']['USE_MOUSE'] == 'True' :
-		# release the device
-		usb.util.release_interface(dev, interface)
-		# reattach the device to the OS kernel
-		dev.attach_kernel_driver(interface)
 
 
 if __name__ == "__main__":
