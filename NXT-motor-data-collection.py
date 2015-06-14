@@ -274,6 +274,8 @@ def run_characterisation_drive(sample_rate     = float(config['test_defaults_cfg
                                rhm_power_level = int(config['test_defaults_cfg']['RHM_POWER_LEVEL']),
                                ) :
 
+	print("Sample rate: {0}".format(sample_rate))
+	print("Duration: {0}".format(duration))
 	print("Power levels => lhm: {0}, rhm: {1}".format(lhm_power_level,rhm_power_level))
 
 	measurement_times     = []
@@ -294,32 +296,33 @@ def run_characterisation_drive(sample_rate     = float(config['test_defaults_cfg
 		rhm_power_levels.append(rhm_power_level)
 		lhm_angular_positions.append(motor_position(PORT_LH_MOTOR))
 		rhm_angular_positions.append(motor_position(PORT_RH_MOTOR))
-		if config['imu_cfg'] == 'True' :
-			headings.append(get_heading())
+#		if config['imu_cfg'] == 'True' :
+#			headings.append(get_heading())
 		time.sleep(sample_rate-(time.time()-measurement_start))
 	motor_stop()
 
-	# write data to mat file
-	try :
-		outfile = config['file_cfg']['OUT_FILE'] + "lhm-" + str(lhm_power_level) + "_rhm-" + str(rhm_power_level) + "_" + str(int(time.time())) + ".mat"
-		if config['imu_cfg'] == 'True' :
-			io.savemat(outfile, {"measurement_times"    : measurement_times,
+	if config['file_cfg']['WRITE_OUT_FILE'] == 'True' :
+		# write data to mat file
+		try :
+			outfile = config['file_cfg']['OUT_FILE'] + "lhm-" + str(lhm_power_level) + "_rhm-" + str(rhm_power_level) + "_" + str(int(time.time())) + ".mat"
+			if config['imu_cfg'] == 'True' :
+				io.savemat(outfile, {"measurement_times"    : measurement_times,
                                              "lhm_power_levels"     : lhm_power_levels,
                                              "rhm_power_levels"     : rhm_power_levels,
                                              "lhm_angular_positions": lhm_angular_positions,
                                              "rhm_angular_positions": rhm_angular_positions,
                                              "headings"             : headings,
                                              })
-                else :
- 			io.savemat(outfile, {"measurement_times"    : measurement_times,
+                	else :
+ 				io.savemat(outfile, {"measurement_times"    : measurement_times,
                                              "lhm_power_levels"     : lhm_power_levels,
                                              "rhm_power_levels"     : rhm_power_levels,
                                              "lhm_angular_positions": lhm_angular_positions,
                                              "rhm_angular_positions": rhm_angular_positions,
                                              })
-		print("Recorded data saved to file {0}".format(outfile))
-	except :
-		print("Failed to write data to file!!")
+			print("Recorded data saved to file {0}".format(outfile))
+		except :
+			print("Failed to write data to file!!")
 
 
 #---------------------------------------------------------------------------------------
