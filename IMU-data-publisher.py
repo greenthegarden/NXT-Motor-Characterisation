@@ -152,10 +152,10 @@ def on_connect(client, userdata, flags, rc) :
 	# Subscribing in on_connect() means that if the connection is lost
 	# the subscriptions will be renewed when reconnecting.
 
-	print("Subscribing to topics ...")
-	for topic in config['mqtt_topics']['TOPICS'] :
-		client.subscribe(topic)
-		print("{0}".format(topic))
+# 	print("Subscribing to topics ...")
+# 	for topic in config['mqtt_topics']['TOPICS'] :
+# 		client.subscribe(topic)
+# 		print("{0}".format(topic))
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg) :
