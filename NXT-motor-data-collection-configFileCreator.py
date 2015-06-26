@@ -7,9 +7,9 @@ config.filename = 'NXT-motor-data-collection.cfg'
 
 # MQTT config
 mqtt_cfg = {
-	'MQTT_BROKER_IP'           : "localhost"
-	'MQTT_BROKER_PORT'         : "1883"
-	'MQTT_BROKER_PORT_TIMEOUT' : "60"
+	'MQTT_BROKER_IP'           : "localhost",
+	'MQTT_BROKER_PORT'         : "1883",
+	'MQTT_BROKER_PORT_TIMEOUT' : "60",
 config['mqtt_cfg'] = mqtt_cfg
 
 # Motor Ports
