@@ -55,10 +55,11 @@ config['test_defaults_cfg'] = test_defaults_cfg
 
 # file configuration
 file_cfg = {
-	'LOG_FILE'    : "NXT-motor-data-collection.log",
-	'SAMPLE_FILE' : "signal.mat",
-	'OUT_FILE'    : "drive_",
-	'MC_OUT'      : "output_"
+	'LOG_FILE'       : "NXT-motor-data-collection.log",
+	'SAMPLE_FILE'    : "signal.mat",
+	'WRITE_OUT_FILE' : "False",
+	'OUT_FILE'       : "drive_",
+	'MC_OUT'         : "output_"
 	}
 config['file_cfg'] = file_cfg
 
