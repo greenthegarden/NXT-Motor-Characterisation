@@ -5,6 +5,13 @@ config = ConfigObj()
 config.filename = 'NXT-motor-data-collection.cfg'
 
 
+# MQTT config
+mqtt_cfg = {
+	'MQTT_BROKER_IP'           : "localhost"
+	'MQTT_BROKER_PORT'         : "1883"
+	'MQTT_BROKER_PORT_TIMEOUT' : "60"
+config['mqtt_cfg'] = mqtt_cfg
+
 # Motor Ports
 motor_ports_cfg = {
 	'PORT_LH_MOTOR' : "PORT_D",
@@ -29,7 +36,11 @@ config['usb_mouse_cfg'] = usb_mouse_cfg
 
 # IMU Configuration
 imu_cfg = {
-	'USE_IMU' : 'False',
+	'USE_IMU'         : 'False',
+	'IMU_ORIENTATION' : 'down',
+	'G_GAIN'          : 0.070,
+	'LP'              : 0.1,  # Loop period = 41ms.   This needs to match the time it takes each loop to run
+        'AA'              : 0.90,
 	}
 config['imu_cfg'] = imu_cfg
 

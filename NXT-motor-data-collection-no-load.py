@@ -159,20 +159,20 @@ def main(argv) :
 	motor_characterisation = False
 	sample_file = config['file_cfg']['SAMPLE_FILE']
 
-	try:
+	try :
 		opts, args = getopt.getopt(argv,"hemi:",["samplefile="])
-	except getopt.GetoptError:
+	except getopt.GetoptError :
 		print_help()
 		sys.exit(2)
 	for opt, arg in opts :
-		if opt == '-h':
+		if opt == '-h' :
 			 print_help()
 			 sys.exit()
-		elif opt in ("-e"):
+		elif opt in ("-e") :
 			 encoder_calibration = True
-		elif opt in ("-m"):
+		elif opt in ("-m") :
 			 motor_characterisation = True
-		elif opt in ("-i", "--samplefile"):
+		elif opt in ("-i", "--samplefile") :
 			 sample_file = arg
 
 	if encoder_calibration :
