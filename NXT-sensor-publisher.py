@@ -74,7 +74,7 @@ client.connect(config['mqtt_cfg']['MQTT_BROKER_IP'],
                int(config['mqtt_cfg']['MQTT_BROKER_PORT_TIMEOUT'])
                )
 
-print("Connected to MQTT broker at {0}".format(config['mqtt_configuration']['MQTT_BROKER_IP']))
+print("Connected to MQTT broker at {0}".format(config['mqtt_cfg']['MQTT_BROKER_IP']))
 
 # link to callback functions
 client.on_connect = on_connect
