@@ -34,7 +34,7 @@ from BrickPi import *
 # setup the serial port for communication
 BrickPiSetup()
 
-PORT_SENSOR_ULTRASONIC = PORT_1
+PORT_SENSOR_ULTRASONIC = PORT_2
 
 # Define sensors
 BrickPi.SensorType[PORT_SENSOR_ULTRASONIC] = TYPE_SENSOR_ULTRASONIC_CONT   #Set the type of sensor at PORT_1
