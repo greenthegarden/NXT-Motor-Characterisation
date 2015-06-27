@@ -7,3 +7,4 @@ sc = StandardCalibration(verbose=True)
 c  = BerryIMUClient(bus=1)
 sc.calibrate_accelerometer(c)
 c.calibration_object = sc
+sc.save()
