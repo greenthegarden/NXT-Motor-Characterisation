@@ -58,10 +58,10 @@ def on_connect(client, userdata, flags, rc) :
 	# Subscribing in on_connect() means that if the connection is lost
 	# the subscriptions will be renewed when reconnecting.
 
-	print("Subscribing to topics ...")
-	for topic in config['mqtt_topics']['TOPICS'] :
-		client.subscribe(topic)
-		print("{0}".format(topic))
+# 	print("Subscribing to topics ...")
+# 	for topic in config['mqtt_topics']['TOPICS'] :
+# 		client.subscribe(topic)
+# 		print("{0}".format(topic))
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg) :
@@ -84,48 +84,20 @@ client.loop_start()
 
 
 #---------------------------------------------------------------------------------------
-# Definition of experiments
+# Collect and publish sensor data
 #
 #---------------------------------------------------------------------------------------
 
-def run_sensor_datacharacterisation_drive(sample_interval = float(config['test_defaults_cfg']['SAMPLE_RATE'])) :
-	while True:
-		measurement_start = time.time()
-		result = BrickPiUpdateValues()  # Ask BrickPi to update values for sensors/motors
-		if not result :
-			client.publish("pibot/sensor/ultrasonic", '{0:.1f}'.format(BrickPi.Sensor[PORT_1]))
-			print BrickPi.Sensor[PORT_1]     #BrickPi.Sensor[PORT] stores the value obtained from sensor
-		time.sleep(sample_interval-(time.time()-measurement_start))
+import time
 
+MEASUREMENT_INTERVAL = float(config['nxt_sensor_cfg']['MEASUREMENT_INTERVAL'])
 
-#---------------------------------------------------------------------------------------
-# Run experiments
-#
-#---------------------------------------------------------------------------------------
+while True:
+	measurement_start = time.time()
 
-import sys, getopt, os
+	result = BrickPiUpdateValues()  # Ask BrickPi to update values for sensors/motors
+	if not result :
+		client.publish("pibot/nxt_sensor/ultrasonic", str({'value':'{0:.1f}'.format(BrickPi.Sensor[PORT_SENSOR_ULTRASONIC]), 'time':time.time()}))
+#		print BrickPi.Sensor[PORT_SENSOR_ULTRASONIC]     #BrickPi.Sensor[PORT] stores the value obtained from sensor
 
-def print_help() :
-	print("{0}".format(os.path.basename(__file__)))
-	print("-s <sample_interval> to set the sample interval. Default is {0} secs".format(config['test_defaults_cfg']['SAMPLE_RATE']))
-
-def main(argv) :
-	sample_rate = float(config['test_defaults_cfg']['SAMPLE_RATE'])
-	try :
-		opts, args = getopt.getopt(argv,"hs:",["sample_interval="])
-	except getopt.GetoptError:
-		print_help()
-		sys.exit(2)
-	for opt, arg in opts :
-		if opt == '-h' :
-			 print_help()
-			 sys.exit()
-		elif opt in ("-s", "--sample_interval") :
-			 sample_interval = float(arg)
-	print("Sample rate is {0}".format(sample_interval))
-
-	run_sensor_datacharacterisation_drive(sample_interval)
-
-
-if __name__ == "__main__":
-   main(sys.argv[1:])
+	time.sleep(MEASUREMENT_INTERVAL-(time.time()-measurement_start))

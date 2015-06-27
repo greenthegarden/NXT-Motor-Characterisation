@@ -27,6 +27,11 @@ motor_spec_cfg = {
 	}
 config['motor_spec_cfg'] = motor_spec_cfg
 
+nxt_sensor_cfg = {
+	'MEASUREMENT_INTERVAL' : 1.0,
+	}
+config['nxt_sensor_cfg'] = nxt_sensor_cfg
+
 # USB Mouse Specifications
 usb_mouse_cfg = {
 	'USE_MOUSE'  : 'False',
@@ -37,11 +42,12 @@ config['usb_mouse_cfg'] = usb_mouse_cfg
 
 # IMU Configuration
 imu_cfg = {
-	'USE_IMU'         : 'False',
-	'IMU_ORIENTATION' : 'down',
-	'G_GAIN'          : 0.070,
-	'LP'              : 0.1,  # Loop period = 41ms.   This needs to match the time it takes each loop to run
-        'AA'              : 0.90,
+	'USE_IMU'              : 'False',
+	'MEASUREMENT_INTERVAL' : 1.0,
+	'IMU_ORIENTATION'      : 'down',
+	'G_GAIN'               : 0.070,
+	'LP'                   : 0.1,  # Loop period = 41ms.   This needs to match the time it takes each loop to run
+        'AA'                   : 0.90,
 	}
 config['imu_cfg'] = imu_cfg
 

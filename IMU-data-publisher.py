@@ -32,19 +32,12 @@ config = ConfigObj('NXT-motor-data-collection.cfg')
 
 
 import smbus
-import time
-import math
-from LSM9DS0 import *
-import datetime
 bus = smbus.SMBus(1)
 
-import numpy as np
+#import time
+from LSM9DS0 import *
+#import datetime
 
-RAD_TO_DEG = 57.29578
-M_PI       = np.pi
-G_GAIN     = float(config['imu_cfg']['G_GAIN']) # [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
-LP         = float(config['imu_cfg']['LP'])     # Loop period = 41ms.   This needs to match the time it takes each loop to run
-AA         = float(config['imu_cfg']['AA'])     # Complementary filter constant
 
 def writeACC(register,value) :
 	bus.write_byte_data(ACC_ADDRESS , register, value)
@@ -125,17 +118,6 @@ writeMAG(CTRL_REG7_XM, 0b00000000) #Continuous-conversion mode
 writeGRY(CTRL_REG1_G, 0b00001111) #Normal power mode, all axes enabled
 writeGRY(CTRL_REG4_G, 0b00110000) #Continuos update, 2000 dps full scale
 
-gyroXangle = 0.0
-gyroYangle = 0.0
-gyroZangle = 0.0
-CFangleX = 0.0
-CFangleY = 0.0
-
-#Change the rotation value of the accelerometer to -/+ 180 and move the Y axis '0' point to up.
-#Two different pieces of code are used depending on how your IMU is mounted.
-# if chip is on top use 'up' else use 'down'
-IMU_ORIENTATION = str(config['imu_cfg']['IMU_ORIENTATION']).lower()
-
 
 #---------------------------------------------------------------------------------------
 # Modules and methods to support MQTT
@@ -178,11 +160,35 @@ client.loop_start()
 
 
 #---------------------------------------------------------------------------------------
-# Definition of experiments
+# Collect and publish sensor data
 #
 #---------------------------------------------------------------------------------------
 
-while True:
+import math
+
+import numpy as np
+
+RAD_TO_DEG = 57.29578
+M_PI       = np.pi
+G_GAIN     = float(config['imu_cfg']['G_GAIN']) # [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
+LP         = float(config['imu_cfg']['LP'])     # Loop period = 41ms.   This needs to match the time it takes each loop to run
+AA         = float(config['imu_cfg']['AA'])     # Complementary filter constant
+
+gyroXangle = 0.0
+gyroYangle = 0.0
+gyroZangle = 0.0
+CFangleX = 0.0
+CFangleY = 0.0
+
+#Change the rotation value of the accelerometer to -/+ 180 and move the Y axis '0' point to up.
+#Two different pieces of code are used depending on how your IMU is mounted.
+# if chip is on top use 'up' else use 'down'
+IMU_ORIENTATION = str(config['imu_cfg']['IMU_ORIENTATION']).lower()
+
+import time
+MEASUREMENT_INTERVAL = float(config['imu_cfg']['MEASUREMENT_INTERVAL'])
+
+while True :
 	measurement_start = time.time()
 
 	AccXangle =  (math.atan2(readACCy(),readACCz())+M_PI)*RAD_TO_DEG;
@@ -242,5 +248,5 @@ while True:
 	client.publish("pibot/imu/heading", str({'value':'{0:.1f}'.format(heading), 'time':time.time()}))
 #	logger.info("Heading: %d" % (heading))
 
-	time.sleep(LP-(time.time()-measurement_start))
+	time.sleep(MEASUREMENT_INTERVAL-(time.time()-measurement_start))
 
