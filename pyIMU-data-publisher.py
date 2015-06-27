@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
 from pyberryimu.client import BerryIMUClient
+from pyberryimu.calibration.standard import StandardCalibration
+
+sc = StandardCalibration.load()
 
 with BerryIMUClient(bus=1) as c :
+	c.calibration_object = sc
 	while True :
 		acc  = c.read_accelerometer()
 		gyro = c.read_gyroscope()
@@ -10,5 +14,6 @@ with BerryIMUClient(bus=1) as c :
 		pr   = c.read_pressure()
 		temp = c.read_temperature()
 
-		print(mag)
-		print(temp)
+		print(acc)
+#		print(mag)
+#		print(temp)
