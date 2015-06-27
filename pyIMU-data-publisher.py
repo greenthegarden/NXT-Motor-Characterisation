@@ -8,3 +8,5 @@ with BerryIMUClient(bus=1) as c :
 	mag  = c.read_magnetometer()
 	pr   = c.read_pressure()
 	temp = c.read_temperature()
+
+	print(temp)
