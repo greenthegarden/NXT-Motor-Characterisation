@@ -14,6 +14,8 @@ with BerryIMUClient(bus=1) as c :
 		pr   = c.read_pressure()
 		temp = c.read_temperature()
 
-		print(acc)
+#		print(acc)
+		print(gyro)
 #		print(mag)
+#		print(pr)
 #		print(temp)
