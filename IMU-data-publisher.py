@@ -168,8 +168,8 @@ import math
 
 import numpy as np
 
-RAD_TO_DEG = 57.29578
 M_PI       = np.pi
+RAD_TO_DEG = 180.0/M_PI
 G_GAIN     = float(config['imu_cfg']['G_GAIN']) # [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
 LP         = float(config['imu_cfg']['LP'])     # Loop period = 41ms.   This needs to match the time it takes each loop to run
 AA         = float(config['imu_cfg']['AA'])     # Complementary filter constant
@@ -270,8 +270,8 @@ while True :
 	client.publish("pibot/imu/heading", str({'value':'{0:.1f}'.format(heading), 'time':measurement_time}))
 	client.publish("pibot/imu/accxnorm", str({'value':'{0:.1f}'.format(accXnorm), 'time':measurement_time}))
 	client.publish("pibot/imu/accynorm", str({'value':'{0:.1f}'.format(accYnorm), 'time':measurement_time}))
-	client.publish("pibot/imu/pitch", str({'value':'{0:.1f}'.format(pitch), 'time':measurement_time}))
-	client.publish("pibot/imu/roll", str({'value':'{0:.1f}'.format(roll), 'time':measurement_time}))
+	client.publish("pibot/imu/pitch", str({'value':'{0:.1f}'.format(pitch*RAD_TO_DEG), 'time':measurement_time}))
+	client.publish("pibot/imu/roll", str({'value':'{0:.1f}'.format(roll*RAD_TO_DEG), 'time':measurement_time}))
 	client.publish("pibot/imu/magxcomp", str({'value':'{0:.1f}'.format(magXcomp), 'time':measurement_time}))
 	client.publish("pibot/imu/magycomp", str({'value':'{0:.1f}'.format(magYcomp), 'time':measurement_time}))
 	client.publish("pibot/imu/tiltcompensatedheading", str({'value':'{0:.1f}'.format(tiltCompensatedHeading), 'time':measurement_time}))
