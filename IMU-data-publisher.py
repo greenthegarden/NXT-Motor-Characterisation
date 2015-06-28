@@ -189,34 +189,32 @@ import time
 MEASUREMENT_INTERVAL = float(config['imu_cfg']['MEASUREMENT_INTERVAL'])
 
 while True :
-	measurement_start = time.time()
+	measurement_time = time.time()
 
-	AccXangle =  (math.atan2(readACCy(),readACCz())+M_PI)*RAD_TO_DEG;
-	client.publish("pibot/imu/accxangle", str({'value':'{0:.3f}'.format(AccXangle), 'time':time.time()}))
+	#Read accelerometer,gyroscope and magnetometer  values
+	ACCx = readACCx()
+	ACCy = readACCy()
+	ACCz = readACCz()
+	GYRx = readGYRx()
+	GYRy = readGYRx()
+	GYRz = readGYRx()
+	MAGx = readMAGx()
+	MAGy = readMAGy()
+	MAGz = readMAGz()
 
-	AccYangle =  (math.atan2(readACCz(),readACCx())+M_PI)*RAD_TO_DEG;
-	client.publish("pibot/imu/accyangle", str({'value':'{0:.3f}'.format(AccYangle), 'time':time.time()}))
+	##Convert Accelerometer values to degrees
+	AccXangle =  (math.atan2(ACCy,ACCz)+M_PI)*RAD_TO_DEG
+	AccYangle =  (math.atan2(ACCz,ACCx)+M_PI)*RAD_TO_DEG
 
 	#Convert Gyro raw to degrees per second
-	rate_gyr_x =  readGYRx() * G_GAIN
-	client.publish("pibot/imu/rate_gyr_x", str({'value':'{0:.3f}'.format(rate_gyr_x), 'time':time.time()}))
-
-	rate_gyr_y =  readGYRy() * G_GAIN
-	client.publish("pibot/imu/rate_gyr_y", str({'value':'{0:.3f}'.format(rate_gyr_y), 'time':time.time()}))
-
-	rate_gyr_z =  readGYRz() * G_GAIN
-	client.publish("pibot/imu/rate_gyr_z", str({'value':'{0:.3f}'.format(rate_gyr_z), 'time':time.time()}))
-
+	rate_gyr_x =  GYRx * G_GAIN
+	rate_gyr_y =  GYRy * G_GAIN
+	rate_gyr_z =  GYRz * G_GAIN
 
 	#Calculate the angles from the gyro. LP = loop period
-	gyroXangle+=rate_gyr_x*LP;
-	client.publish("pibot/imu/gyroxangle", str({'value':'{0:.3f}'.format(gyroXangle), 'time':time.time()}))
-
-	gyroYangle+=rate_gyr_y*LP;
-	client.publish("pibot/imu/gyroyangle", str({'value':'{0:.3f}'.format(gyroYangle), 'time':time.time()}))
-
-	gyroZangle+=rate_gyr_z*LP;
-	client.publish("pibot/imu/gyrozangle", str({'value':'{0:.3f}'.format(gyroZangle), 'time':time.time()}))
+	gyroXangle+=rate_gyr_x*LP
+	gyroYangle+=rate_gyr_y*LP
+	gyroZangle+=rate_gyr_z*LP
 
 	if IMU_ORIENTATION == 'up' :
 		# If IMU is up the correct way
@@ -233,20 +231,49 @@ while True :
 		if (AccYangle >180) :
 			AccYangle -= 360.0
 
-	#Complementary filter used to combine the accelerometer and gyro values.
-	CFangleX=AA*(CFangleX+rate_gyr_x*LP) +(1 - AA) * AccXangle;
-	client.publish("pibot/imu/cfanglex", str({'value':'{0:.3f}'.format(CFangleX), 'time':time.time()}))
+        #Complementary filter used to combine the accelerometer and gyro values.
+        CFangleX=AA*(CFangleX+rate_gyr_x*LP) +(1 - AA) * AccXangle
+        CFangleY=AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle
 
-	CFangleY=AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle;
-	client.publish("pibot/imu/cfangley", str({'value':'{0:.3f}'.format(CFangleY), 'time':time.time()}))
+	#Calculate heading
+	heading = 180 * math.atan2(MAGy,MAGx)/M_PI
+	if heading < 0:
+	 	heading += 360
 
-#	logger.info("AccXangle: %d, Heading: %d, gyroZangle: %d" % (AccXangle, heading, gyroZangle))
+	#Normalize accelerometer raw values.
+        accXnorm = ACCx/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
+	accYnorm = ACCy/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
 
-	heading = 180 * math.atan2(readMAGy(),readMAGx())/M_PI
-	if heading < 0 :
-		heading += 360;
-	client.publish("pibot/imu/heading", str({'value':'{0:.1f}'.format(heading), 'time':time.time()}))
-#	logger.info("Heading: %d" % (heading))
+	#Calculate pitch and roll
+	pitch = math.asin(accXnorm)
+	roll = -math.asin(accYnorm/math.cos(pitch))
 
-	time.sleep(MEASUREMENT_INTERVAL-(time.time()-measurement_start))
+	#Calculate the new tilt compensated values
+	magXcomp = MAGx*math.cos(pitch)+MAGz*math.sin(pitch)
+	magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)-MAGz*math.sin(roll)*math.cos(pitch)
 
+	#Calculate tiles compensated heading
+        tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/M_PI
+        if tiltCompensatedHeading < 0:
+                tiltCompensatedHeading += 360
+
+	client.publish("pibot/imu/accxangle", str({'value':'{0:.3f}'.format(AccXangle), 'time':measurement_time}))
+	client.publish("pibot/imu/accyangle", str({'value':'{0:.3f}'.format(AccYangle), 'time':measurement_time}))
+	client.publish("pibot/imu/rate_gyr_x", str({'value':'{0:.3f}'.format(rate_gyr_x), 'time':measurement_time}))
+	client.publish("pibot/imu/rate_gyr_y", str({'value':'{0:.3f}'.format(rate_gyr_y), 'time':measurement_time}))
+	client.publish("pibot/imu/rate_gyr_z", str({'value':'{0:.3f}'.format(rate_gyr_z), 'time':measurement_time}))
+	client.publish("pibot/imu/gyroxangle", str({'value':'{0:.3f}'.format(gyroXangle), 'time':measurement_time}))
+	client.publish("pibot/imu/gyroyangle", str({'value':'{0:.3f}'.format(gyroYangle), 'time':measurement_time}))
+	client.publish("pibot/imu/gyrozangle", str({'value':'{0:.3f}'.format(gyroZangle), 'time':measurement_time}))
+	client.publish("pibot/imu/cfanglex", str({'value':'{0:.3f}'.format(CFangleX), 'time':measurement_time}))
+	client.publish("pibot/imu/cfangley", str({'value':'{0:.3f}'.format(CFangleY), 'time':measurement_time}))
+	client.publish("pibot/imu/heading", str({'value':'{0:.1f}'.format(heading), 'time':measurement_time}))
+	client.publish("pibot/imu/accxnorm", str({'value':'{0:.1f}'.format(accXnorm), 'time':measurement_time}))
+	client.publish("pibot/imu/accynorm", str({'value':'{0:.1f}'.format(accYnorm), 'time':measurement_time}))
+	client.publish("pibot/imu/pitch", str({'value':'{0:.1f}'.format(pitch), 'time':measurement_time}))
+	client.publish("pibot/imu/roll", str({'value':'{0:.1f}'.format(roll), 'time':measurement_time}))
+	client.publish("pibot/imu/magxcomp", str({'value':'{0:.1f}'.format(magXcomp), 'time':measurement_time}))
+	client.publish("pibot/imu/magycomp", str({'value':'{0:.1f}'.format(magYcomp), 'time':measurement_time}))
+	client.publish("pibot/imu/tiltcompensatedheading", str({'value':'{0:.1f}'.format(tiltCompensatedHeading), 'time':measurement_time}))
+
+	time.sleep(MEASUREMENT_INTERVAL-(time.time()-measurement_time))
