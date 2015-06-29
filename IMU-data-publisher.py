@@ -99,7 +99,7 @@ def readGYRy():
 	gyr_combined = (gyr_l | gyr_h <<8)
 	return gyr_combined  if gyr_combined < 32768 else gyr_combined - 65536
 
-def readGYRz():
+def readGYRz() :
 	gyr_l = bus.read_byte_data(GYR_ADDRESS, OUT_Z_L_G)
 	gyr_h = bus.read_byte_data(GYR_ADDRESS, OUT_Z_H_G)
 	gyr_combined = (gyr_l | gyr_h <<8)
@@ -231,9 +231,9 @@ while True :
 		if (AccYangle >180) :
 			AccYangle -= 360.0
 
-        #Complementary filter used to combine the accelerometer and gyro values.
-        CFangleX=AA*(CFangleX+rate_gyr_x*LP) +(1 - AA) * AccXangle
-        CFangleY=AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle
+    #Complementary filter used to combine the accelerometer and gyro values.
+    CFangleX=AA*(CFangleX+rate_gyr_x*LP) +(1 - AA) * AccXangle
+    CFangleY=AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle
 
 	#Calculate heading
 	heading = 180 * math.atan2(MAGy,MAGx)/M_PI
@@ -241,7 +241,7 @@ while True :
 	 	heading += 360
 
 	#Normalize accelerometer raw values.
-        accXnorm = ACCx/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
+    accXnorm = ACCx/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
 	accYnorm = ACCy/math.sqrt(ACCx * ACCx + ACCy * ACCy + ACCz * ACCz)
 
 	#Calculate pitch and roll
@@ -253,9 +253,9 @@ while True :
 	magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)-MAGz*math.sin(roll)*math.cos(pitch)
 
 	#Calculate tiles compensated heading
-        tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/M_PI
-        if tiltCompensatedHeading < 0:
-                tiltCompensatedHeading += 360
+    tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/M_PI
+    if tiltCompensatedHeading < 0:
+    	tiltCompensatedHeading += 360
 
 	client.publish("pibot/imu/accxangle", str({'value':'{0:.3f}'.format(AccXangle), 'time':measurement_time}))
 	client.publish("pibot/imu/accyangle", str({'value':'{0:.3f}'.format(AccYangle), 'time':measurement_time}))
